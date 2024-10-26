@@ -498,6 +498,7 @@ proc MoveTimeList {color add} {
     set game [sc_base getGame $base $gnum live]
     set n [llength $game]
     set movenr 0
+    set oldtime 0
     for {set i 0} { $i < $n} { incr i } {
 	set RAVd [lindex [lindex $game $i] 0]
 	set RAVn [lindex [lindex $game $i] 1]
@@ -533,7 +534,19 @@ proc MoveTimeList {color add} {
 	    regexp $clkExp $comment -> clock
 	    if { $clock != "" } {
 		if { [scan $clock "%f:%f:%f" ho mi sec ] == 3 } {
-		    lappend movetimes [expr $movenr+$offset] [expr { $ho*60.0 + $mi + $sec/60}] }
+        if { ! $add } {
+          set len [llength $movetimes]
+          set newtime [expr { $ho*60.0 + $mi + $sec/60}]
+          if { $len == 0 } {
+          	lappend movetimes [expr $movenr+$offset] 0.0
+          } else {
+  		      lappend movetimes [expr $movenr+$offset] [expr { 60 * ($oldtime - $newtime) } ]
+          }
+          set oldtime $newtime
+        } else {
+		      lappend movetimes [expr $movenr+$offset] [expr { $ho*60.0 + $mi + $sec/60} ]           
+        }
+    }
 	    } else {
 		set emtExp {.*?\[%emt\s*(.*?)\s*\].*}
 		set emt ""
