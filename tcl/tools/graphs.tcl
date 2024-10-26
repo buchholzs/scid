@@ -496,9 +496,31 @@ proc MoveTimeList {color add} {
     set base [sc_base current]
     set gnum [sc_game number]
     set game [sc_base getGame $base $gnum live]
+    set extraTags [sc_game tag get Extra]
+    set extraTagsList [split $extraTags "\n"]
     set n [llength $game]
     set movenr 0
     set oldtime 0
+    set timecontrolnormaltime 0
+    set timecontrolextratime 0
+		foreach i $extraTagsList {
+			if { [string equal -nocase [lindex $i 0] "TimeControl" ] } {
+				set timecontrol [string range $i [expr [string length "TimeControl"] +  2] end-1]
+        set entries [split $timecontrol "+"]
+        set i 0
+        foreach e $entries {
+          if { $i == 0 } {
+            set timecontrolnormaltime $e
+            set oldtime [expr $timecontrolnormaltime / 60 ]
+          }
+          if { $i == 1} {
+            set timecontrolextratime $e
+          }
+          incr i
+        }
+      }
+		}
+
     for {set i 0} { $i < $n} { incr i } {
 	set RAVd [lindex [lindex $game $i] 0]
 	set RAVn [lindex [lindex $game $i] 1]
@@ -537,10 +559,11 @@ proc MoveTimeList {color add} {
         if { ! $add } {
           set len [llength $movetimes]
           set newtime [expr { $ho*60.0 + $mi + $sec/60}]
-          if { $len == 0 } {
+          set diff [expr { 60 * ($oldtime - $newtime) + $timecontrolextratime} ]
+          if { $len == 0 && $oldtime == 0 } {
           	lappend movetimes [expr $movenr+$offset] 0.0
           } else {
-  		      lappend movetimes [expr $movenr+$offset] [expr { 60 * ($oldtime - $newtime) } ]
+  		      lappend movetimes [expr $movenr+$offset] [expr { 60 * ($oldtime - $newtime) + $timecontrolextratime} ]
           }
           set oldtime $newtime
         } else {
