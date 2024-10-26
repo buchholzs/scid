@@ -556,7 +556,7 @@ proc MoveTimeList {color add} {
 	    regexp $clkExp $comment -> clock
 	    if { $clock != "" } {
 		if { [scan $clock "%f:%f:%f" ho mi sec ] == 3 } {
-        if { ! $add } {
+        if { ! $add && $timecontrolnormaltime > 0 } {
           set len [llength $movetimes]
           set newtime [expr { $ho*60.0 + $mi + $sec/60}]
           set diff [expr { 60 * ($oldtime - $newtime) + $timecontrolextratime} ]
