@@ -638,25 +638,15 @@ namespace eval tactics {
     ################################################################################
     proc loadBase { name } {
         global ::tactics::baseId ::tactics::filter
-        set baseId [sc_base slot $name]
-        if {$baseId != 0} {
-            ::file::SwitchToBase $baseId 0
-        } else  {
-            progressWindow "Scid" "$::tr(OpeningTheDatabase): [file tail "$name"]..."
-            set err [catch {sc_base open "$name"} baseId]
-            closeProgressWindow
-            if {$err && $::errorCode != $::ERROR::NameDataLoss } {
-                ERROR::MessageBox "$fName\n"
-                return $err
-            }
-        }
+        lassign [::file::OpenOrSwitch $name] err
+        if {$err} { return $err }
+
+        set baseId $::curr_db
         #TODO:
         #set filter [sc_filter new $baseId]
         set filter dbfilter
         sc_filter search $baseId $filter header -filter RESET -flag S -flag| T -site! "\"$::tactics::solved\""
-
-        ::notify::GameChanged
-        ::notify::DatabaseChanged
+        ::notify::DatabaseModified $baseId $filter
         return 0
     }
     ################################################################################
