@@ -1215,7 +1215,7 @@ proc CreateMainBoard { {w} } {
   ::board::new $w.board $::boardSize
   ::board::showMarks $w.board $::gameInfo(showMarks)
   ::board::coords $w.board $::boardCoords
-  ::board::bindEvalBar $w.board <ButtonRelease-1> "
+  ::board::bindEvalBar $w.board <ButtonRelease> "
     tk_popup \[::createMainEvalBarMenu $w.board \] %X %Y
   "
   options.persistent ::showEvalBar($w) 1
