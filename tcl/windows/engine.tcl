@@ -196,12 +196,12 @@ proc ::enginewin::createDisplayFrame {id display} {
             %W tag add markmove $movestart [%W search " " $movestart]
             ::board::popup .enginewinBoard $pos %X %Y
         } else {
-            catch { wm withdraw .enginewinBoard }
+            destroy .enginewinBoard
         }
     }} $id]
     $display.pv_lines tag bind moves <Any-Leave> {
         %W tag remove markmove 1.0 end
-        catch { wm withdraw .enginewinBoard }
+        destroy .enginewinBoard
     }
 }
 
