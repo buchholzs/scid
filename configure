@@ -18,24 +18,16 @@ set var(COMPILE) g++
 set var(DEBUG) {-DNDEBUG}
 set var(OBJS) {$(SCIDOBJS)}
 set var(THREADS) {-pthread}
-set var(OPTIMIZE) {-std=c++20 -O3 -march=native -fno-rtti -fno-exceptions}
+set var(OPTIMIZE) {-std=c++20 -O3 -fno-rtti -fno-exceptions}
 set var(PROFILE) {}
 set var(SCIDFLAGS) {}
 set var(SHAREDIR) /usr/local/share/scid
-set var(TCL_VERSION) $tcl_version
-set var(WARNINGS) -Wall
+set var(TCL_VERSION) 8.6
+set var(WARNINGS) "-Wall -Wno-deprecated-declarations"
 set var(MAKEFILE) Makefile.conf
 set var(INSTALL) {install_scid install_engines}
 
 set defaultVar(TCL_INCLUDE) {/usr/include}
-
-if {"$::tcl_platform(os)" == "Darwin"} {
-    #Default values for Mac OS X
-    set var(INSTALL) {install_mac}
-    set var(COMPILE) {clang++}
-    set var(LINK) {clang++ -stdlib=libc++}
-    set var(THREADS) {-stdlib=libc++}
-}
 
 # findDir:
 #    Returns the first directory in the list "path" that contains a
