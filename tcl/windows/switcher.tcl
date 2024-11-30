@@ -674,6 +674,7 @@ proc ::windows::switcher::Create {{w} {gamelist ""}} {
   grid columnconfigure $w 0 -weight 1
   canvas $w.c -highlightthickness 0
   autoscrollBars y $w.border $w.c
+  applyThemeStyle TLabel $w.c
 
   for {set i 1} {$i <= $::sw_nBases_} {incr i} {
     set f [ttk::frame $w.c.f$i]
@@ -770,7 +771,6 @@ proc ::windows::switcher::Draw {{w} {numColumns} {iconWidth} {iconHeight} } {
   set right [expr {$numColumns * $iconWidth}]
   set bottom [expr {$numRows * $iconHeight}]
   $w.c configure -scrollregion [list 0 0 $right $bottom] -borderwidth 4 -relief flat
-  ::applyThemeColor_background $w.c
 }
 
 proc ::windows::switcher::Refresh {} {
