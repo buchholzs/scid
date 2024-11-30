@@ -20,7 +20,10 @@ if { $macOS } {
 
   $m add separator
 
-  # To Quit
+  proc ::tk::mac::OpenDocument { files } {
+    foreach f $files { ::file::Open $f}
+  }
+  # To Quit (cmd-q)
   proc ::tk::mac::Quit { args } { ::file::Exit }
 
   ## To get Help
