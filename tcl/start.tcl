@@ -52,11 +52,15 @@ if {[string compare $::scidVersion $::scidVersionExpected]} {
 # Determine operating system platform: unix, windows or macos
 #
 set windowsOS 0
-if {$tcl_platform(platform) == "windows"} { set windowsOS 1 }
 set unixOS 0
-if {$tcl_platform(platform) == "unix"} { set unixOS 1 }
 set macOS 0
-if {![catch {tk windowingsystem} wsystem] && $wsystem == "aqua"} { set macOS 1 }
+if {[tk windowingsystem] == "aqua"} {
+  set macOS 1
+} elseif {$tcl_platform(platform) == "unix"} {
+  set unixOS 1
+} elseif {$tcl_platform(platform) == "windows"} {
+  set windowsOS 1
+}
 
 proc InitDirs {} {
   global scidExeDir scidUserDir scidConfigDir scidDataDir scidLogDir scidShareDir scidImgDir scidTclDir
