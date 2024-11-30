@@ -119,7 +119,7 @@ proc ::tree::make { { baseNumber -1 } {locked 0} } {
   translateMenuLabels $w.menu
 
   autoscrollText y $w.f $w.f.tl Treeview
-  $w.f.tl configure -wrap none  -setgrid 1 -exportselection 1 -font font_Fixed
+  $w.f.tl configure -wrap none -exportselection 1 -font font_Fixed
   #define default tags
   $w.f.tl tag configure bluefg -foreground DodgerBlue3
   $w.f.tl tag configure greenfg -foreground SeaGreen

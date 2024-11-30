@@ -769,7 +769,7 @@ proc loadPlayersPhoto {} {
 }
 loadPlayersPhoto
 
-# Normalizes player or game engine names by standardizing case, removing 
+# Normalizes player or game engine names by standardizing case, removing
 # specific prefixes ('deep '), and eliminating excess whitespace.
 # Returns:
 #     A list with two elements: the normalized engine name and the spell name.
@@ -1290,7 +1290,7 @@ proc CreateGameInfo {} {
   # .gameInfo is the game information widget:
   #
   autoscrollText y .main.gameInfo .main.gameInfo.text Treeview
-  .main.gameInfo.text configure -width 20 -height 6 -wrap none -state disabled -cursor top_left_arrow -setgrid 1
+  .main.gameInfo.text configure -width 20 -height 6 -wrap none -state disabled -cursor top_left_arrow
   ::htext::init .main.gameInfo.text
 
   # Set up player photos:
