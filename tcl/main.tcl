@@ -1183,8 +1183,8 @@ proc setPlayMode { callback } {
 proc resizeMainBoard {} {
   if { $::autoResizeBoard } {
     update idletasks
-    set availw [winfo width .fdockmain]
-    set availh [winfo height .fdockmain]
+    set availw [winfo width .main]
+    set availh [winfo height .main]
     if {$::showGameInfo} {
       set availh [expr $availh - [winfo height .main.gameInfo] ]
     }
@@ -1207,8 +1207,7 @@ proc toggleGameInfo {} {
 ################################################################################
 
 proc CreateMainBoard { {w} } {
-  createToplevel $w
-  setTitle $w [ ::tr "Board" ]
+  ::win::createWindow $w [ ::tr "Board" ]
 
   CreateGameInfo
 

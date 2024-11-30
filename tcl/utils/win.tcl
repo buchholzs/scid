@@ -212,7 +212,7 @@ proc ::win::toggleDocked {wnd} {
 	lassign [::win::isDocked $wnd] docked_nb wnd
 
 	# Check if the window can be docked/undocked
-	if {$wnd eq ".fdockmain" || [winfo class $wnd] ne "Frame"} {
+	if {$wnd eq ".main" || [winfo class $wnd] ne "Frame"} {
 		return
 	}
 
@@ -608,7 +608,7 @@ proc ::docking::manage_rightclick_ {noteb x y localX localY} {
 	$m add command -label [ ::tr DockRight ] -state $state \
 		-command "::docking::move_tab_ $wnd $noteb e"
 	# Main board can not be closed or undocked
-	if { $wnd != ".fdockmain" } {
+	if { $wnd != ".main" } {
 		$m add separator
 		$m add command -label [ ::tr Undock ] -command "::win::undockWindow $wnd $noteb"
 		$m add command -label [ ::tr Close ] -command "::win::closeWindow $wnd"
@@ -714,7 +714,7 @@ proc ::docking::layout_restore_pw { data } {
 
 proc ::docking::create_window {wnd} {
       switch -regexp -matchvar regmatch -- $wnd {
-      "\.(fdock)?main"                { ::docking::insert_tab $wnd $::docking::layout_dest_notebook end [list -text $::tr(Board) -compound none] }
+      "\.(fdock)?main"                { ::docking::insert_tab .main $::docking::layout_dest_notebook end [list -text $::tr(Board) -compound none] }
       "\.(fdock)?pgnWin"              { ::pgn::OpenClose }
       "\.(fdock)?baseWin"             { ::windows::switcher::Open }
       "\.(fdock)?bookWin"             { ::book::open }
