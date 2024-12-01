@@ -179,38 +179,38 @@ proc ::enginecfg::createConfigButtons {id w fn_connect} {
     }} $fn_connect]
     ::utils::tooltip::Set $w.engine [tr EngineSelect]
 
-    ttk::button $w.addpipe -image tb_eng_add -command [list apply {{fn_connect} {
+    ttk::button $w.reload -text "\u21BB" -style Toolbutton \
+        -command "event generate $w.engine <<ComboboxSelected>>"
+    ::utils::tooltip::Set $w.reload [tr EngineReload]
+
+    ttk::button $w.addpipe -text "\u271A" -style Toolbutton -command [list apply {{fn_connect} {
         if {[set newEngine [::enginecfg::dlgNewLocal]] ne ""} {
             {*}$fn_connect $newEngine
         }
     }} $fn_connect]
     ::utils::tooltip::Set $w.addpipe [tr EngineAddLocal]
 
-    ttk::button $w.addremote -image tb_eng_network -command [list apply {{fn_connect} {
+    ttk::button $w.addremote -text "\u2B82" -style Toolbutton -command [list apply {{fn_connect} {
         if {[set newEngine [::enginecfg::dlgNewRemote]] ne ""} {
             {*}$fn_connect $newEngine
         }
     }} $fn_connect]
     ::utils::tooltip::Set $w.addremote [tr EngineAddRemote]
 
-    ttk::button $w.reload -image tb_eng_reload \
-        -command "event generate $w.engine <<ComboboxSelected>>"
-    ::utils::tooltip::Set $w.reload [tr EngineReload]
-
-    ttk::button $w.clone -image tb_eng_clone -command [list apply {{id fn_connect} {
+    ttk::button $w.clone -text "\u29C9" -style Toolbutton -command [list apply {{id fn_connect} {
         {*}$fn_connect [::enginecfg::add [set ::enginewin::engConfig_$id]]
     }} $id $fn_connect]
     ::utils::tooltip::Set $w.clone [tr EngineClone]
 
-    ttk::button $w.delete -image tb_eng_delete -command [list apply {{w fn_connect} {
+    ttk::button $w.delete -text "\u2A02" -style Toolbutton -command [list apply {{w fn_connect} {
         if {[::enginecfg::remove [$w.engine get]]} {
             {*}$fn_connect {}
         }
     }} $w $fn_connect]
     ::utils::tooltip::Set $w.delete [tr EngineDelete]
 
-    grid $w.engine $w.addpipe $w.addremote \
-         $w.reload $w.clone $w.delete -sticky news
+    grid $w.engine $w.reload $w.addpipe $w.addremote \
+         $w.clone $w.delete -sticky news -padx 4
 
     bind $w <<UpdateEngineName>> [list apply {{w} {
         lassign %d name
