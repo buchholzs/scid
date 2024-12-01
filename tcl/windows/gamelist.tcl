@@ -30,32 +30,26 @@ proc ::windows::gamelist::Open { {base ""} {filter ""} } {
 					}
 				}
 				::windows::gamelist::SetBase $glwin $base $filter
-				##TODO: this is a hack to raise the gamelist window
-				createToplevel $glwin
-				focus $glwin.games.glist
+				::win::makeVisible $glwin
 				return
 			}
 		}
 	}
 
 	set i 1
-	set closeto ""
-	while {[winfo exists .glistWin$i]} {
-		set closeto .glistWin$i
+	while {".glistWin$i" in $::windows::gamelist::wins} {
 		incr i
 	}
 	set w .glistWin$i
-	::createToplevel $w $closeto
 
 	set ::gamelistTitle($w) "[tr WindowsGList]:"
+	::win::createWindow $w $::::gamelistTitle($w)
 	::windows::gamelist::createWin_ $w $base $filter
-	focus $w
 }
 
 proc ::windows::gamelist::OpenTreeBest { {base} {w} } {
-	if {[::createToplevel $w] == "already_exists"} {
-		focus .
-		destroy $w
+	if {! [::win::createWindow $w ""]} {
+		::win::closeWindow $w
 		return
 	}
 	set ::gamelistTitle($w) "[tr TreeBestGames]:"
@@ -426,14 +420,13 @@ proc ::windows::gamelist::createWin_ { {w} {base} {filter} } {
 	grid columnconfigure $w 1 -weight 0
 	grid columnconfigure $w 2 -weight 1
 	bind $w <Destroy> {
-		if { [winfo class %W] == "Toplevel" } {
-			set idx [lsearch -exact $::windows::gamelist::wins %W]
+		set idx [lsearch -exact $::windows::gamelist::wins %W]
+		if { $idx ne -1 } {
 			set ::windows::gamelist::wins [lreplace $::windows::gamelist::wins $idx $idx]
 			::windows::gamelist::filterRelease_ $::gamelistBase(%W) $::gamelistFilter(%W)
 		}
 	}
 	bind $w <Control-l> "::windows::gamelist::Open \$::gamelistBase($w)"
-	createToplevelFinalize $w
 	lappend ::windows::gamelist::wins $w
 	::windows::gamelist::Refresh 1 $w
 }
