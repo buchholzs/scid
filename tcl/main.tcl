@@ -264,7 +264,7 @@ proc updateMainToolbar {} {
   if {[sc_pos isAt start]} {
     ::board::setButtonCmd .main.board leavevar ""
     ::board::setButtonCmd .main.board back ""
-    catch { unset ::gameInfoBar(tb_BD_Start) }
+    unset -nocomplain ::gameInfoBar(tb_BD_Start)
   } else {
     ::board::setButtonCmd .main.board leavevar "::move::ExitVarOrStart"
     ::board::setButtonCmd .main.board back "::move::Back"
@@ -273,8 +273,8 @@ proc updateMainToolbar {} {
   if {[sc_pos isAt end] || [sc_pos isAt vend]} {
     ::board::setButtonCmd .main.board forward ""
     ::board::setButtonCmd .main.board endvar ""
-    catch { unset ::gameInfoBar(tb_BD_End) }
-    catch { unset ::gameInfoBar(tb_BD_Autoplay) }
+    unset -nocomplain ::gameInfoBar(tb_BD_End)
+    unset -nocomplain ::gameInfoBar(tb_BD_Autoplay)
   } else {
     ::board::setButtonCmd .main.board forward "::move::Forward"
     ::board::setButtonCmd .main.board endvar "::move::EndVar"
@@ -283,10 +283,10 @@ proc updateMainToolbar {} {
   }
 
   if {[sc_var level] == 0} {
-    catch { unset ::gameInfoBar(tb_BD_VarDelete) }
-    catch { unset ::gameInfoBar(tb_BD_VarPromote) }
-    catch { unset ::gameInfoBar(tb_BD_VarLeave) }
-    catch { unset ::gameInfoBar(tb_BD_BackToMainline) }
+    unset -nocomplain ::gameInfoBar(tb_BD_VarDelete)
+    unset -nocomplain ::gameInfoBar(tb_BD_VarPromote)
+    unset -nocomplain ::gameInfoBar(tb_BD_VarLeave)
+    unset -nocomplain ::gameInfoBar(tb_BD_BackToMainline)
     ::board::setButtonImg .main.board leavevar tb_BD_BackStart
   } else {
     set ::gameInfoBar(tb_BD_VarDelete) { ::pgn::deleteVar }
