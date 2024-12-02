@@ -900,12 +900,23 @@ proc glist.create {{w} {layout}} {
   # Find widget
   ttk::frame $w.find
   ttk::frame $w.find.t
+  ttk::button $w.find.advanced -image tb_hsearch -style Toolbutton -command [list apply {{w} {
+    set w_top [regexp -inline {^\.[^.]+} $w]
+    ::search::header $::gamelistBase($w_top) $::gamelistFilter($w_top)
+  }} $w]
+  ::utils::tooltip::Set "$w.find.advanced" "$::helpMessage($::language,SearchHeader)"
+  ttk::button $w.find.reset -image tb_rfilter -style Toolbutton -command "
+    $w.find.text delete 0 end
+	$w.find.filter invoke
+  "
+  ::utils::tooltip::Set "$w.find.reset" "$::helpMessage($::language,SearchReset)"
   ttk::label $w.find.t_text -text $::tr(Search)
   ttk::entry $w.find.text -width 20
-  ttk::button $w.find.filter -image tb_search16 -command "glist.findgame_ $w awe"
-  ttk::button $w.find.b1_text -image tb_down -command \
+  ttk::button $w.find.filter -image tb_search16 -style Toolbutton \
+    -command "glist.findgame_ $w awe"
+  ttk::button $w.find.b1_text -image tb_down -style Toolbutton -command \
     "after cancel glist.findgame_ $w 1; after idle glist.findgame_ $w 1"
-  ttk::button $w.find.b2_text -image tb_up -command \
+  ttk::button $w.find.b2_text -image tb_up -style Toolbutton -command \
     "after cancel glist.findgame_ $w 0; after idle glist.findgame_ $w 0"
   bind $w.find.text <Escape> "glist.showfindbar_ $w.glist $layout 0"
   bind $w.find.text <Return> "$w.find.filter invoke"
@@ -914,7 +925,8 @@ proc glist.create {{w} {layout}} {
   #TODO: -from 0 -to 100
   #TODO: set scale position when normal ybar is used
   ttk::scale $w.find.scale -command "glist.ybar_ $w.glist moveto"
-  grid $w.find.t_text $w.find.text $w.find.filter $w.find.b2_text $w.find.b1_text -in $w.find.t -padx 2
+  grid $w.find.advanced $w.find.reset $w.find.t_text $w.find.text \
+    $w.find.filter $w.find.b2_text $w.find.b1_text -in $w.find.t -padx 2
   grid $w.find.t -row 0 -column 1 -padx 6
   grid $w.find.scale -row 0 -column 3 -sticky ew
   grid columnconfigure $w.find 3 -weight 1
@@ -938,17 +950,20 @@ proc glist.create {{w} {layout}} {
 
 # glist.update
 #   Retrieve values from database and update the widget
-#   w: the parent windows of the widget that was passed to glist.create
+#   w_top: the parent windows of the widget that was passed to glist.create
 #   base: the database from which retrieve values
 #   filter: returns only values in the specified filter
 #   moveUp: reset glist to show the first results
-proc glist.update {{w} {base} {filter} {moveUp 1}} {
-  set w $w.glist
+proc glist.update {{w_top} {base} {filter} {moveUp 1}} {
+  set w $w_top.glist
   if {! [winfo exists $w]} { return }
 
   set ::glistFilter($w) $filter
-  set ::glistTotal($w) [sc_filter count $base $filter]
+  lassign [sc_filter sizes $base $filter] ::glistTotal($w) n_games n_main_filter
   if {$moveUp == 1} { set ::glistFirst($w) 0 }
+
+  $w_top.find.reset configure \
+    -state [expr {$n_main_filter eq $n_games ? "disabled" : "normal" }]
 
   glist.update_ $w $base
 }
