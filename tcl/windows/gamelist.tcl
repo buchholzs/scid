@@ -507,10 +507,6 @@ proc ::windows::gamelist::createGList_ {{w}} {
 	ttk::frame $w.games -borderwidth 0 -padding {8 5 5 2}
 	glist.create $w.games "ly$w"
 	grid $w.games -row 0 -column 2 -sticky news
-	# TODO: always show the find bar instead of toggling between show/hide
-	bind [winfo toplevel $w] <Control-f> "
-		event generate $w.buttons.filter <<Invoke>>
-	"
 }
 
 proc ::windows::gamelist::menu_ {{w} {button}} {
@@ -1030,7 +1026,7 @@ proc glist.findgame_ {{w_parent} {dir}} {
   set txt [$w_entryT get]
   $w_entryT configure -style {}
   if { $dir == "awe" } {
-    ::windows::gamelist::Awesome [winfo toplevel $w_parent] "$txt"
+    ::windows::gamelist::Awesome [regexp -inline {^\.[^.]+} $w_parent] "$txt"
     $w_entryT selection range 0 end
     return
   }
@@ -1158,12 +1154,13 @@ proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
         -command "glist.delflag_ $w $idx; $w selection set {};"
 
       $w.game_menu add separator
+      set w_top [regexp -inline {^\.[^.]+} $w]
       menu $w.game_menu.filter
       $w.game_menu.filter add separator
       $w.game_menu.filter add command -label [tr SearchReset] \
-        -command "::windows::gamelist::FilterReset [winfo toplevel $w] $::glistBase($w)"
+        -command "::windows::gamelist::FilterReset $w_top $::glistBase($w)"
       $w.game_menu.filter add command -label [tr SearchNegate] \
-        -command "::windows::gamelist::FilterNegate [winfo toplevel $w] $::glistBase($w)"
+        -command "::windows::gamelist::FilterNegate $w_top $::glistBase($w)"
       $w.game_menu.filter add separator
       $w.game_menu.filter add command -label $::tr(GlistRemoveGameAndAboveFromFilter) \
         -command "glist.removeFromFilter_ $w $idx -"
@@ -1179,7 +1176,7 @@ proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
       $w.game_menu add cascade -label $::tr(Filter) -menu $w.game_menu.filter
       menu $w.game_menu.export
       $w.game_menu.export add command -label [tr ToolsExpFilter] \
-        -command "::windows::gamelist::FilterExport [winfo toplevel $w]"
+        -command "::windows::gamelist::FilterExport $w_top"
       $w.game_menu.export add separator
       $w.game_menu add cascade -label [tr CopyGames] -menu $w.game_menu.export
 
@@ -1191,7 +1188,7 @@ proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
         $w.game_menu.copy add command -label "$i $fname" \
           -command "sc_base copygames $::glistBase($w) $idx $i; ::notify::DatabaseModified $i"
         $w.game_menu.export add command -label "$i $fname" \
-          -command "::windows::gamelist::CopyGames [winfo toplevel $w] $::glistBase($w) $i"
+          -command "::windows::gamelist::CopyGames $w_top $::glistBase($w) $i"
       }
 
       $w.game_menu add separator
