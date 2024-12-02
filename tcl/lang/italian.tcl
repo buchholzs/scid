@@ -200,7 +200,7 @@ menuText I ToolsExpFilterLaTeX "Esporta filtro in un file LaTeX..." 3 \
   {Scrive tutte le partite filtrate in un file LaTeX}
 menuText I ToolsImportOne "Importa una partita in formato PGN..." 0 \
   {Importa una partita da testo PGN}
-menuText I ToolsImportFile "Importa file di partite PGN..." 27 \
+menuText I ToolsImportFile "Importa partite da files PGN..." 27 \
   {Importa le partite da uno o più file PGN}
 menuText I ToolsStartEngine1 "Avvia il motore 1" 16  {Avvia il primo motore per l'analisi della posizione}
 menuText I ToolsStartEngine2 "Avvia il motore 2" 16  {Avvia il secondo motore per l'analisi della posizione}

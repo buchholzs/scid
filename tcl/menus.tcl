@@ -89,7 +89,8 @@ menu $m.exportfilter
   $m.exportfilter add command -label ToolsExpFilterLaTeX \
       -command {exportGames filter LaTeX}
 $m add cascade -label ToolsExpFilter -menu $m.exportfilter
-$m add command -label ToolsImportFile -command { importPgnFile $::curr_db }
+menu $m.importfile
+$m add cascade -label ToolsImportFile -menu $m.importfile
 $m add separator
 menu $m.utils
   $m.utils add checkbutton -label FileMaintWin -accelerator "Ctrl+M" -variable maintWin -command ::maint::OpenClose
@@ -449,18 +450,25 @@ proc menuUpdateBases {} {
   set ::currentSlot $::curr_db
   .menu.db delete $::menuDbSwitchIdx end
   .menu.db.copygames delete $::menuDBCopyGamesIdx end
+  .menu.db.importfile delete 0 end
 
   foreach i [sc_base list] {
     set fname [::file::BaseName $i]
+    set readonly [sc_base isReadOnly $i]
 
     .menu.db add radiobutton -variable currentSlot -value $i \
         -label "Base $i: $fname" \
         -underline 5 -accelerator "Ctrl+$i"\
         -command [list ::file::SwitchToBase $i]
 
-    if {$i != $::curr_db && ![sc_base isReadOnly $i]} {
+    if {$i != $::curr_db && ! $readonly} {
         .menu.db.copygames add command -label "Base $i: $fname" \
             -command "::windows::gamelist::CopyGames {} $::curr_db $i all"
+    }
+
+    if {! $readonly} {
+        .menu.db.importfile add command -label "into $i: $fname" \
+            -command "importPgnFile $i"
     }
   }
 
