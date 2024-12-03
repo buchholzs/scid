@@ -900,23 +900,23 @@ proc glist.create {{w} {layout}} {
   # Find widget
   ttk::frame $w.find
   ttk::frame $w.find.t
-  ttk::button $w.find.advanced -image tb_gl_filter_adv -style Toolbutton -command [list apply {{w} {
+  ttk::button $w.find.advanced -image ::icon::filter_adv -style Toolbutton -command [list apply {{w} {
     set w_top [regexp -inline {^\.[^.]+} $w]
     ::search::header $::gamelistBase($w_top) $::gamelistFilter($w_top)
   }} $w]
   ::utils::tooltip::Set "$w.find.advanced" "$::helpMessage($::language,SearchHeader)"
-  ttk::button $w.find.reset -image tb_gl_filter_reset -style Toolbutton -command "
+  ttk::button $w.find.reset -image ::icon::filter_reset -style Toolbutton -command "
     $w.find.text delete 0 end
 	$w.find.filter invoke
   "
   ::utils::tooltip::Set "$w.find.reset" "$::helpMessage($::language,SearchReset)"
   ttk::label $w.find.t_text -text $::tr(Search)
   ttk::entry $w.find.text -width 20
-  ttk::button $w.find.filter -image tb_gl_filter_go -style Toolbutton \
+  ttk::button $w.find.filter -image ::icon::filter_go -style Toolbutton \
     -command "glist.findgame_ $w awe"
-  ttk::button $w.find.b1_text -image tb_arrow16_down -style Toolbutton -command \
+  ttk::button $w.find.b1_text -image ::icon::arrow_down16 -style Toolbutton -command \
     "after cancel glist.findgame_ $w 1; after idle glist.findgame_ $w 1"
-  ttk::button $w.find.b2_text -image tb_arrow16_up -style Toolbutton -command \
+  ttk::button $w.find.b2_text -image ::icon::arrow_up16 -style Toolbutton -command \
     "after cancel glist.findgame_ $w 0; after idle glist.findgame_ $w 0"
   bind $w.find.text <Escape> "glist.showfindbar_ $w.glist $layout 0"
   bind $w.find.text <Return> "$w.find.filter invoke"

@@ -190,6 +190,7 @@ if {[catch {InitImg}]} {
 # altered when the user options file is loaded.
 #
 foreach ns {
+  ::icon
   ::splash
   ::utils
   ::utils::date ::utils::font ::utils::history ::utils::pane ::utils::string
@@ -521,6 +522,17 @@ proc configure_style {} {
   foreach elem [lsearch -all -inline -exact -index 0 $::themeOptions [ttk::style theme use]] {
     option add [lindex $elem 1] [lindex $elem 2]
   }
+
+  #Load light or dark icons (if the theme name contains "dark")
+  set icons_dir "icons_light"
+  if {[string first "dark" [ttk::style theme use]] != -1} {
+    set icons_dir "icons_dark"
+  }
+	set dname [file join $::scidImgDir $icons_dir]
+	foreach {fname} [glob -directory $dname *.png] {
+		set iname [string range [file tail $fname] 0 end-4]
+		image create photo ::icon::$iname -format png -file $fname
+	}
 }
 bind . <<ThemeChanged>> { if {"%W" eq "."} { configure_style } }
 
