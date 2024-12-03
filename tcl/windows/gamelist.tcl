@@ -438,6 +438,18 @@ proc ::windows::gamelist::createMenu_ {w} {
 	ttk::button $w.buttons.layout -image tb_Layout -command "::windows::gamelist::menu_ $w layout"
 	ttk::button $w.buttons.stats -image tb_Stats -command "::windows::gamelist::menu_ $w stats; ::windows::gamelist::updateStats_ $w"
 	ttk::button $w.buttons.boardFilter -image tb_BoardMask -command "::windows::gamelist::searchpos_ $w"
+	menu $w.menu_export
+	ttk::button $w.buttons.export -image tb_gl_filter_export -command [list apply {{w menu btn} {
+		::windows::gamelist::createExportMenu_ $w $menu
+		# Get the correct reqheight by forcibly drawing the changes to the menu.
+		update idletasks
+		set x [winfo rootx $btn]
+		set y [winfo rooty $btn]
+		set bh [winfo height $btn]
+		set mh [winfo reqheight $menu]
+		if {$y >= $mh} { incr y -$mh } { incr y $bh }
+		tk_popup $menu $x $y
+	}} $w $w.menu_export $w.buttons.export]
 	#TODO:
 	#ttk::button $w.buttons.stats -image b_bargraph
 	::utils::tooltip::Set $w.buttons.database $::tr(ShowHideDB)
@@ -445,11 +457,13 @@ proc ::windows::gamelist::createMenu_ {w} {
 	::utils::tooltip::Set $w.buttons.layout $::tr(ChangeLayout)
 	::utils::tooltip::Set $w.buttons.stats $::tr(ShowHideStatistic)
 	::utils::tooltip::Set $w.buttons.boardFilter $::tr(BoardFilter)
+	::utils::tooltip::Set $w.buttons.export [tr ToolsExpFilter]
 	grid $w.buttons.database -row 0
 	grid $w.buttons.filter -row 1
 	grid $w.buttons.layout -row 2
 	grid $w.buttons.stats -row 3
 	grid $w.buttons.boardFilter -row 4
+	grid $w.buttons.export -row 5
 	grid $w.buttons -row 0 -column 0 -sticky news
 
 	ttk::frame $w.database -padding {0 5 6 2}
@@ -509,6 +523,23 @@ proc ::windows::gamelist::createGList_ {{w}} {
 	grid $w.games -row 0 -column 2 -sticky news
 }
 
+proc ::windows::gamelist::createExportMenu_ {{w} {m}} {
+	$m delete 0 end
+	$m add command -label [tr ToolsExpFilter] \
+        -command "::windows::gamelist::FilterExport $w"
+	set bases [lmap i [sc_base list] {
+		if { $i == $::gamelistBase($w) || [sc_base isReadOnly $i] } { continue }
+		list $i
+	}]
+	if {[llength $bases]} { $m add separator }
+	foreach i $bases {
+		set fname [::file::BaseName $i]
+		$m add command -label "Base $i: $fname" \
+		  -command "::windows::gamelist::CopyGames $w $::gamelistBase($w) $i"
+	}
+	return $m
+}
+
 proc ::windows::gamelist::menu_ {{w} {button}} {
 	if {$::gamelistMenu($w) != ""} {
 		$w.buttons.$::gamelistMenu($w) state !pressed
@@ -543,6 +574,7 @@ proc ::windows::gamelist::update_ {{w} {moveUp}} {
 
 	$w.games.glist tag configure fsmall -foreground ""
 	$w.buttons.boardFilter configure -image tb_BoardMask
+	$w.buttons.export configure -state [expr {$filterSz ? "normal" : "disabled"}]
 
 	if {$gameSz == $mainSz} {
 		$w.buttons.filter configure -image tb_search_on
