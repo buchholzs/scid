@@ -646,7 +646,7 @@ proc getPhotoDir { widget } {
 
 proc setPhotoDir { dir } {
     set ::scidPhotoDir $dir
-    options.save ::scidPhotoDir
+    ::options.store ::scidPhotoDir
     set n [loadPlayersPhoto]
     set ret [lindex $n 0]
     tk_messageBox -parent .resDialog -message "Found $ret images in [lindex $n 1] file(s)"

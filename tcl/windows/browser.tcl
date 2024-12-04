@@ -6,8 +6,7 @@ namespace eval ::gbrowser {}
 
 
 proc ::gbrowser::new {base gnum {ply -1}} {
-  if {! [info exists ::gbrowser::size] } { set ::gbrowser::size 65 }
-  options.save ::gbrowser::size
+  ::options.store ::gbrowser::size 65
 
   set n 0
   while {[winfo exists .gb$n]} { incr n }

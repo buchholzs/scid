@@ -13,6 +13,18 @@
 ####################################################
 # Set default values
 
+
+# Initialize a variable whose value will be restored when the program starts.
+# default_value: set the variable to this value if it does not exists.
+proc options.store {varname {default_value ""}} {
+  if {![info exists $varname]} {
+    set $varname $default_value
+  }
+  if {![info exists ::autosave_opt] || [lsearch -exact $::autosave_opt $varname] == -1} {
+    lappend ::autosave_opt $varname
+  }
+}
+
 proc InitDefaultToolbar {} {
   foreach {tbicon status}  {
     newdb 0 open 0 save 0 closedb 0
@@ -113,7 +125,6 @@ proc InitDefaultFonts {} {
 }
 
 proc InitDefaultGListLayouts {} {
-  set ::glist_Layouts {RatingDate DateEvent Full}
   set ::glist_ColOrder(RatingDate) {{7} {1} {2} {3} {4} {5} {6} {23} {22} {8} {9} {10} {11} {12} {13} {14} {15} {16} {0}}
   set ::glist_ColWidth(RatingDate) {{50} {50} {50} {120} {40} {120} {40} {80} {200} {30}  {200} {30} {20} {20} {20} {20} {35} {50} {30} {100} {40} {40} {50} {140}}
   set ::glist_ColAnchor(RatingDate) {{e} {c} {c} {w} {c} {w} {c} {w} {w} {e}  {w} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {w}}
@@ -129,6 +140,12 @@ proc InitDefaultGListLayouts {} {
   set ::glist_ColAnchor(Full) {{e} {c} {c} {w} {c} {w} {c} {w} {w} {e}  {w} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {w}}
   set ::glist_Sort(Full) {0 +}
   set ::glist_FindBar(Full) 0
+  ::options.store ::glist_Layouts {RatingDate DateEvent Full}
+  ::options.store ::glist_ColOrder
+  ::options.store ::glist_ColWidth
+  ::options.store ::glist_ColAnchor
+  ::options.store ::glist_Sort
+  ::options.store ::glist_FindBar
 }
 
 proc InitDefaultAnnotate {} {
@@ -766,11 +783,15 @@ proc options.write {} {
       }
     }
 
-
-    # Save var that was added with options.save()
+    # Save var that was added with options.store()
     if {[info exists ::autosave_opt]} {
+      set ::autosave_opt [lsort -dictionary $::autosave_opt]
       puts $optionF ""
       puts $optionF "set ::autosave_opt [list $::autosave_opt]"
+      foreach ns [lsort -unique [lmap elem $::autosave_opt { namespace qualifiers $elem }]] {
+        if {$ns eq ""} { continue }
+        puts $optionF "namespace eval $ns {}"
+      }
       foreach {var} $::autosave_opt {
         if {[array exists $var]} {
             puts $optionF "array set $var [list [array get $var]]"
@@ -794,19 +815,6 @@ proc options.autoSaveHack {} {
   }
 }
 
-# Sets an option whose value is restored when the program starts
-proc options.persistent {varname default_value} {
-  if {![info exists $varname]} {
-    set $varname $default_value
-  }
-  options.save $varname
-}
-
-proc options.save {varname} {
-  if {![info exists ::autosave_opt] || [lsearch -exact $::autosave_opt $varname] == -1} {
-    lappend ::autosave_opt $varname
-  }
-}
 
 ###
 ### End of file: options.tcl

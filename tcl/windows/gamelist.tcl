@@ -723,7 +723,6 @@ proc ::windows::gamelist::updateStats_ { {w} } {
 namespace eval ::glist_Ly {
 	proc Create {w} {
 		if {! [info exists ::glist_Layouts] } { set ::glist_Layouts {} }
-		options.save ::glist_Layouts
 		set ::gamelistNewLayout [::glist_Ly::createName_]
 		canvas $w.layout.b.c -highlightthickness 0
 		::applyThemeColor_background $w.layout.b.c
@@ -934,13 +933,6 @@ proc glist.create {{w} {layout}} {
   glist.showfindbar_ $w.glist $layout
   bind $w <<FindBarHide>> "glist.showfindbar_ $w.glist $layout 0"
   bind $w <<FindBarShow>> "glist.showfindbar_ $w.glist $layout 1"
-
-  # On exit save layout in options.dat
-  options.save ::glist_ColOrder
-  options.save ::glist_ColWidth
-  options.save ::glist_ColAnchor
-  options.save ::glist_Sort
-  options.save ::glist_FindBar
 
   set ::glistLoaded($w.glist) 0
   set ::glistTotal($w.glist) 0

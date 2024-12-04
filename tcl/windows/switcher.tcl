@@ -481,8 +481,7 @@ JZCYasm01FZrrSUGIKTAttwu4O234Ia7AAMAMGTuueieGxAAOw==
 variable ::windows::switcher::base_types {}
 
 #TODO: remove the no-icons option
-if {! [info exists ::windows::switcher::icons] } { set ::windows::switcher::icons 1 }
-after idle "options.save ::windows::switcher::icons"
+::options.store ::windows::switcher::icons 1
 
 # Initialise icons nicely
 

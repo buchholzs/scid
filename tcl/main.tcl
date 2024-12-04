@@ -1217,8 +1217,8 @@ proc CreateMainBoard { {w} } {
   ::board::bindEvalBar $w.board <ButtonRelease> "
     tk_popup \[::createMainEvalBarMenu $w.board \] %X %Y
   "
-  options.persistent ::showEvalBar($w) 1
-  options.persistent ::showMainEvalBarArrow 1
+  ::options.store ::showEvalBar($w) 1
+  ::options.store ::showMainEvalBarArrow 1
   if {$::showEvalBar($w)} { ::board::toggleEvalBar $w.board }
   if {$::gameInfo(showMaterial)} { ::board::toggleMaterial $w.board }
 

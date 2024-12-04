@@ -2289,14 +2289,14 @@ proc toggleFinishGame { { n 1 } } {
 	if {! [info exists ::finishGameAnnotate] } { set ::finishGameAnnotate 1 }
 	if {! [info exists ::finishGameAnnotateShort] } { set ::finishGameAnnotateShort 1 }
 	# On exit save values in options.dat
-	options.save ::finishGameEng1
-	options.save ::finishGameEng2
-	options.save ::finishGameCmd1
-	options.save ::finishGameCmdVal1
-	options.save ::finishGameCmd2
-	options.save ::finishGameCmdVal2
-	options.save ::finishGameAnnotate
-	options.save ::finishGameAnnotateShort
+	::options.store ::finishGameEng1
+	::options.store ::finishGameEng2
+	::options.store ::finishGameCmd1
+	::options.store ::finishGameCmdVal1
+	::options.store ::finishGameCmd2
+	::options.store ::finishGameCmdVal2
+	::options.store ::finishGameAnnotate
+	::options.store ::finishGameAnnotateShort
 
 	if {$::finishGameMode} {
 		set ::finishGameMode 0

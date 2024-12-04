@@ -154,7 +154,7 @@ proc ::enginewin::Open { {id ""} {enginename ""} } {
         ::notify::EngineBestMove $id {} {}
     "
 
-    options.persistent ::enginewin_lastengine($id) ""
+    ::options.store ::enginewin_lastengine($id) ""
     set ::enginewin::engState($id) {}
     set ::enginewin::engConfig_$id {}
     set ::enginewin::limits_$id {}
