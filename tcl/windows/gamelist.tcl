@@ -805,21 +805,21 @@ namespace eval ::glist_Ly {
 #   w: parent window of the gamelist widget
 #   layout: a string name that will be assigned to columns layout.
 #           layout will be saved and restored in successive glist.create calls.
-proc glist.create {{w} {layout}} {
+proc glist.create {{w} {layout} {reset_layout false}} {
   # Default values
-  if {! [info exists ::glist_ColOrder($layout)] } {
+  if {! [info exists ::glist_ColOrder($layout)] || $reset_layout} {
     set ::glist_ColOrder($layout) {7 3 4 5 6 1 2 23 8 10 9 16 17 22 21 18 11 12 13 14 15 0}
   }
-  if {! [info exists ::glist_ColWidth($layout)] } {
+  if {! [info exists ::glist_ColWidth($layout)] || $reset_layout} {
     set ::glist_ColWidth($layout) {50 50 39 120 40 120 40 70 200 30 200 30 20 20 20 20 35 119 30 78 40 40 50 155}
   }
-  if {! [info exists ::glist_ColAnchor($layout)] } {
+  if {! [info exists ::glist_ColAnchor($layout)] || $reset_layout} {
     set ::glist_ColAnchor($layout) {e c c w c w c w w e w c c c c c c c c c c c c w}
   }
-  if {! [info exists ::glist_Sort($layout)] } {
+  if {! [info exists ::glist_Sort($layout)] || $reset_layout} {
     set ::glist_Sort($layout) {0 +}
   }
-  if {! [info exists ::glist_FindBar($layout)] } {
+  if {! [info exists ::glist_FindBar($layout)] || $reset_layout} {
     set ::glist_FindBar($layout) 0
   }
 
@@ -942,22 +942,55 @@ proc glist.create {{w} {layout}} {
 
 # glist.update
 #   Retrieve values from database and update the widget
-#   w_top: the parent windows of the widget that was passed to glist.create
+#   w: parent window of the gamelist (same value passed to for glist.create)
 #   base: the database from which retrieve values
 #   filter: returns only values in the specified filter
 #   moveUp: reset glist to show the first results
-proc glist.update {{w_top} {base} {filter} {moveUp 1}} {
-  set w $w_top.glist
-  if {! [winfo exists $w]} { return }
+proc glist.update {{w} {base} {filter} {moveUp 1}} {
+  if {! [winfo exists $w.glist]} { return }
 
-  set ::glistFilter($w) $filter
-  lassign [sc_filter sizes $base $filter] ::glistTotal($w) n_games n_main_filter
-  if {$moveUp == 1} { set ::glistFirst($w) 0 }
+  set ::glistFilter($w.glist) $filter
+  lassign [sc_filter sizes $base $filter] ::glistTotal($w.glist) n_games n_main_filter
+  if {$moveUp == 1} { set ::glistFirst($w.glist) 0 }
 
-  $w_top.find.reset configure \
+  $w.find.reset configure \
     -state [expr {$n_main_filter eq $n_games ? "disabled" : "normal" }]
 
-  glist.update_ $w $base
+  glist.update_ $w.glist $base
+}
+
+# Apply a full layout (appearance and sorting) to a gamelist
+# w: parent window of the gamelist (same value passed to for glist.create)
+# layout: name of the current layout
+# new_ly: name of the layout to apply (or DEFAULT)
+proc glist.layout_apply {w layout new_ly} {
+  if {$new_ly ne "DEFAULT"} {
+    set ::glist_ColOrder($layout) $::glist_ColOrder($new_ly)
+    set ::glist_ColWidth($layout) $::glist_ColWidth($new_ly)
+    set ::glist_ColAnchor($layout) $::glist_ColAnchor($new_ly)
+    set ::glist_Sort($layout) $::glist_Sort($new_ly)
+    set ::glist_FindBar($layout) $::glist_FindBar($new_ly)
+  }
+  set base $::glistBase($w.glist)
+  set filter $::glistFilter($w.glist)
+  destroy {*}[winfo children $w]
+  glist.create $w $layout [expr {$new_ly eq "DEFAULT"}]
+  glist.update $w $base $filter
+}
+
+# Save a full layout (appearance and sorting) as CustomN
+# layout: name of the current layout
+proc glist.layout_save {layout} {
+  foreach elem [lsort -dictionary $::glist_Layouts] {
+    regexp {^Custom(\d+)$} $elem -> n
+  }
+  set new_ly "Custom[incr n]"
+  set ::glist_ColOrder($new_ly) $::glist_ColOrder($layout)
+  set ::glist_ColWidth($new_ly) $::glist_ColWidth($layout)
+  set ::glist_ColAnchor($new_ly) $::glist_ColAnchor($layout)
+  set ::glist_Sort($new_ly) $::glist_Sort($layout)
+  set ::glist_FindBar($new_ly) $::glist_FindBar($layout)
+  lappend ::glist_Layouts "$new_ly"
 }
 
 
@@ -1159,17 +1192,7 @@ proc glist.removeFromFilter_ {{w} {idx} {dir ""}} {
 }
 
 proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
-# identify region requires at least tk 8.5.9
-# identify row have scrollbar problems
-  if { 0 != [catch {set region [$w identify region $x $y] }] } {
-    if {[$w identify row $x $y] == "" } {
-      set region "heading"
-    } else {
-      set region ""
-    }
-  }
-  if { $region != "heading" } {
-# if {[$w identify region $x $y] != "heading" }
+  if {[$w identify region $x $y] != "heading" } {
     event generate $w <ButtonPress-1> -x $x -y $y
     lassign [split [$w selection] "_"] idx ply
     if {$idx ne ""} {
@@ -1279,6 +1302,21 @@ proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
     #RESET SORT
     $w.header_menu add separator
     $w.header_menu add command -label $::tr(ResetSort) -command "glist.sort_ $w 0 $layout 1"
+
+    #LAYOUTS
+    destroy $w.header_menu.layouts
+    menu $w.header_menu.layouts
+    $w.header_menu.layouts add command -label $::tr(Save) -command "glist.layout_save $layout"
+    $w.header_menu.layouts add separator
+    $w.header_menu.layouts add command -label $::tr(Defaults) \
+      -command "glist.layout_apply [winfo parent $w] $layout DEFAULT"
+    if {[info exists ::glist_Layouts]} {
+      foreach elem $::glist_Layouts {
+        $w.header_menu.layouts add command -label $elem \
+          -command "glist.layout_apply [winfo parent $w] $layout $elem"
+      }
+    }
+    $w.header_menu add cascade -label "Layouts" -menu $w.header_menu.layouts
 
     #BARS
     $w.header_menu add separator
