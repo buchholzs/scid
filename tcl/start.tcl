@@ -132,52 +132,52 @@ InitDirs
 
 
 proc InitImg {} {
-	global scidImgDir boardStyle boardStyles textureSquare
+  global scidImgDir boardStyle boardStyles textureSquare
 
-	#Set app icon
-	set scidIconFile [file nativename [file join $scidImgDir "scid.gif"]]
-	if {[file readable $scidIconFile]} {
-		wm iconphoto . -default [image create photo -file "$scidIconFile"]
-	}
+  #Set app icon
+  set scidIconFile [file nativename [file join $scidImgDir "scid.gif"]]
+  if {[file readable $scidIconFile]} {
+    wm iconphoto . -default [image create photo -file "$scidIconFile"]
+  }
 
-	#Load all img/buttons/_filename_.gif
-	set dname [file join $::scidImgDir buttons]
-	foreach {fname} [glob -directory $dname *.gif] {
-		set iname [string range [file tail $fname] 0 end-4]
-		image create photo $iname -file $fname
-	}
+  #Load all img/buttons/_filename_.gif
+  set dname [file join $::scidImgDir buttons]
+  foreach {fname} [glob -directory $dname *.gif] {
+    set iname [string range [file tail $fname] 0 end-4]
+    image create photo $iname -file $fname
+  }
 
-	#Load all img/buttons/_filename_.png
-	set dname [file join $::scidImgDir buttons]
-	foreach {fname} [glob -directory $dname *.png] {
-		set iname [string range [file tail $fname] 0 end-4]
-		image create photo $iname -format png -file $fname
-	}
+  #Load all img/buttons/_filename_.png
+  set dname [file join $::scidImgDir buttons]
+  foreach {fname} [glob -directory $dname *.png] {
+    set iname [string range [file tail $fname] 0 end-4]
+    image create photo $iname -format png -file $fname
+  }
 
-	#Load all img/boards/_filename_.gif
-	set textureSquare {}
-	set dname [file join $::scidImgDir boards]
-	foreach {fname} [glob -directory $dname *.gif] {
-		set iname [string range [file tail $fname] 0 end-4]
-		image create photo $iname -file $fname
-		if {[string range $iname end-1 end] == "-l"} {
-			lappend textureSquare [string range $iname 0 end-2]
-		}
-	}
+  #Load all img/boards/_filename_.gif
+  set textureSquare {}
+  set dname [file join $::scidImgDir boards]
+  foreach {fname} [glob -directory $dname *.gif] {
+    set iname [string range [file tail $fname] 0 end-4]
+    image create photo $iname -file $fname
+    if {[string range $iname end-1 end] == "-l"} {
+      lappend textureSquare [string range $iname 0 end-2]
+    }
+  }
 
-	#Search available piece sets
-	set boardStyles {}
-	set dname [file join $::scidImgDir pieces]
-	foreach {piecetype} [glob -directory $dname *] {
-		if {[file isdirectory $piecetype] == 1} {
-			lappend boardStyles [file tail $piecetype]
-		}
-	}
+  #Search available piece sets
+  set boardStyles {}
+  set dname [file join $::scidImgDir pieces]
+  foreach {piecetype} [glob -directory $dname *] {
+    if {[file isdirectory $piecetype] == 1} {
+      lappend boardStyles [file tail $piecetype]
+    }
+  }
 }
 if {[catch {InitImg}]} {
-	tk_messageBox -type ok -icon error -title "Scid: Error" \
-		-message "Cannot load images.\n$::errorCode\n\n$::errorInfo"
-	exit
+  tk_messageBox -type ok -icon error -title "Scid: Error" \
+    -message "Cannot load images.\n$::errorCode\n\n$::errorInfo"
+  exit
 }
 
 
@@ -322,24 +322,24 @@ proc safeSourceStyle {filename} {
 proc safePwd {} {}
 
 proc safePackage { interp args } {
-    set args [lassign $args command]
-    catch {
-	switch -- $command {
-	    "require" { package require {*}$args }
-	    "vsatisfies" { package vsatisfies {*}$args }
-	    "provide" { package provide {*}$args }
-	}
+  set args [lassign $args command]
+  catch {
+    switch -- $command {
+      "require" { package require {*}$args }
+      "vsatisfies" { package vsatisfies {*}$args }
+      "provide" { package provide {*}$args }
     }
+  }
 }
 
 proc safeImage {interp dir_map args} {
-	set filename [lsearch -exact $args -file]
-	if {$filename != -1} {
-		incr filename
-		set real_filename [string map $dir_map [lindex $args $filename]]
-		set args [lreplace $args $filename $filename $real_filename]
-	}
-	return [image {*}$args]
+  set filename [lsearch -exact $args -file]
+  if {$filename != -1} {
+    incr filename
+    set real_filename [string map $dir_map [lindex $args $filename]]
+    set args [lreplace $args $filename $filename $real_filename]
+  }
+  return [image {*}$args]
 }
 
 proc safeStyleOption {interp args} {
@@ -350,26 +350,26 @@ proc safeStyleOption {interp args} {
 # If the command includes a script (ttk::style theme settings or ttk::style theme create)
 # it is evaluated using the safe interpreter.
 proc safeStyle {interp args} {
-	lassign $args theme settings themeName script
-	if {$theme eq "theme"} {
-		if { $settings eq "settings"} {
-			set curr_theme [ttk::style theme use]
-			ttk::style theme use $themeName
-			$interp eval $script
-			ttk::style theme use $curr_theme
-			return
-		}
+  lassign $args theme settings themeName script
+  if {$theme eq "theme"} {
+    if { $settings eq "settings"} {
+      set curr_theme [ttk::style theme use]
+      ttk::style theme use $themeName
+      $interp eval $script
+      ttk::style theme use $curr_theme
+      return
+    }
 
-		set script_i [lsearch -exact $args -settings]
-		if {$script_i != -1} {
-			set script_j [expr $script_i + 1]
-			ttk::style {*}[lreplace $args $script_i $script_j]
-			$interp eval [list ttk::style theme settings $themeName [lindex $args $script_j]]
-			return
-		}
-	}
+    set script_i [lsearch -exact $args -settings]
+    if {$script_i != -1} {
+      set script_j [expr $script_i + 1]
+      ttk::style {*}[lreplace $args $script_i $script_j]
+      $interp eval [list ttk::style theme settings $themeName [lindex $args $script_j]]
+      return
+    }
+  }
 
-	return [ttk::style {*}$args]
+  return [ttk::style {*}$args]
 }
 
 ####################################################
@@ -377,11 +377,11 @@ proc safeStyle {interp args} {
 source [file nativename [file join $::scidTclDir "options.tcl"]]
 
 proc calculateTreeviewRowHeight { } {
-    set row_height [expr { round(1.1 * [font metrics font_Regular -linespace]) }]
-    ttk::style configure Treeview -rowheight $row_height
+  set row_height [expr { round(1.1 * [font metrics font_Regular -linespace]) }]
+  ttk::style configure Treeview -rowheight $row_height
 
-    set ::glistRowHeight [expr { round(1.4 * [font metrics font_Small -linespace]) }]
-    ttk::style configure Gamelist.Treeview -rowheight $::glistRowHeight
+  set ::glistRowHeight [expr { round(1.4 * [font metrics font_Small -linespace]) }]
+  ttk::style configure Gamelist.Treeview -rowheight $::glistRowHeight
 }
 
 proc updateFonts {font_name} {
@@ -501,13 +501,13 @@ proc configure_style {} {
 
   # Some themes (e.g. vista and xpnative) use custom field elements and ignore -fieldbackground
   if {[regexp {(Combobox|Entry|Spinbox)\.(field|background)} [ttk::style element names]]} {
-      ttk::style configure Error.TCombobox -foreground #b80f0a
-      ttk::style configure Error.TEntry -foreground #b80f0a
-      ttk::style configure Error.TSpinbox -foreground #b80f0a
+    ttk::style configure Error.TCombobox -foreground #b80f0a
+    ttk::style configure Error.TEntry -foreground #b80f0a
+    ttk::style configure Error.TSpinbox -foreground #b80f0a
   } else {
-      ttk::style configure Error.TCombobox -fieldbackground #b80f0a
-      ttk::style configure Error.TEntry -fieldbackground #b80f0a
-      ttk::style configure Error.TSpinbox -fieldbackground #b80f0a
+    ttk::style configure Error.TCombobox -fieldbackground #b80f0a
+    ttk::style configure Error.TEntry -fieldbackground #b80f0a
+    ttk::style configure Error.TSpinbox -fieldbackground #b80f0a
   }
 
   calculateTreeviewRowHeight
@@ -528,11 +528,11 @@ proc configure_style {} {
   if {[string first "dark" [ttk::style theme use]] != -1} {
     set icons_dir "icons_dark"
   }
-	set dname [file join $::scidImgDir $icons_dir]
-	foreach {fname} [glob -directory $dname *.png] {
-		set iname [string range [file tail $fname] 0 end-4]
-		image create photo ::icon::$iname -format png -file $fname
-	}
+  set dname [file join $::scidImgDir $icons_dir]
+  foreach {fname} [glob -directory $dname *.png] {
+    set iname [string range [file tail $fname] 0 end-4]
+    image create photo ::icon::$iname -format png -file $fname
+  }
 }
 bind . <<ThemeChanged>> { if {"%W" eq "."} { configure_style } }
 
@@ -548,17 +548,17 @@ configure_menus
 #     ::update_switch_btn widget_name initial_value
 # Return the value of the variable associated with the widget.
 proc ::update_switch_btn {widget {set_value ""}} {
-    set varname [$widget cget -variable]
-    if {$set_value ne ""} {
-        set ::$varname $set_value
-    }
-    if {[$widget instate selected]} {
-        set full_circle [expr $::windowsOS ?"\u2B24":"\u25CF"]
-        $widget configure -text "       $full_circle"
-    } else {
-        $widget configure -text "\u25EF       "
-    }
-    return [set ::$varname]
+  set varname [$widget cget -variable]
+  if {$set_value ne ""} {
+    set ::$varname $set_value
+  }
+  if {[$widget instate selected]} {
+    set full_circle [expr $::windowsOS ?"\u2B24":"\u25CF"]
+    $widget configure -text "       $full_circle"
+  } else {
+    $widget configure -text "\u25EF       "
+  }
+  return [set ::$varname]
 }
 
 proc autoscrollText {bars frame widget style} {
@@ -735,7 +735,7 @@ utils/bibliography.tcl
 }
 
 foreach f $tcl_files {
-    source -encoding utf-8 [file nativename [file join $::scidTclDir "$f"]]
+  source -encoding utf-8 [file nativename [file join $::scidTclDir "$f"]]
 }
 
 ###
