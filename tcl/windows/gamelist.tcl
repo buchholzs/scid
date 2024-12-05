@@ -842,7 +842,7 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   }
   bind $w.glist <2> "glist.popupmenu_ %W %x %y %X %Y $layout"
   bind $w.glist <3> "glist.popupmenu_ %W %x %y %X %Y $layout"
-  bind $w.glist <ButtonRelease-1> "glist.release_ %W %x %y $layout"
+  bind $w.glist <ButtonRelease-1> "glist.release_ %W %x %y %s $layout"
   bind $w.glist <Double-ButtonRelease-1> "glist.doubleclick_ %W %x %y $layout"
   bind $w.glist <KeyPress-Up> {glist.movesel_ %W prev -1 0; break}
   bind $w.glist <KeyPress-Down> {glist.movesel_ %W next +1 end; break}
@@ -1158,10 +1158,7 @@ proc glist.delflag_ {{w} {idx}} {
 }
 
 proc glist.doubleclick_ {{w} {x} {y} {layout}} {
-  lassign [$w identify $x $y] what
-  if {$what == "heading"} {
-    glist.sortClickHandle_ $w $x $y $layout 1
-  } else {
+  if {[$w identify region $x $y] ne "heading"} {
     foreach {idx ply} [split [$w identify item $x $y] "_"] {}
     if {[info exists idx]} {
       if {[info exists ::glistClickOp($w)]} {
@@ -1340,12 +1337,18 @@ proc glist.sortInit_ {w {layout}} {
   }
 }
 
-proc glist.sortClickHandle_ {{w} {x} {y} {layout} {clear 0}} {
+proc glist.sortClickEvent_ {w x y event_state layout} {
   set col [$w identify column $x $y]
   set col_idx [lsearch -exact $::glist_Headers [$w column $col -id] ]
   if {"???" == [lindex $::glist_SortShortcuts $col_idx]} {
     # TODO: notify the user that the column cannot be used for sorting
     return
+  }
+  set clear 1
+  lassign $::glist_Sort($layout) i1 s1 i2
+  set control_click [expr {$event_state & 0x0c}]
+  if {$control_click || ($i1 eq $col_idx && $i2 eq "")} {
+    set clear 0
   }
   glist.sort_ $w $col_idx $layout $clear
 }
@@ -1446,29 +1449,26 @@ proc glist.removecol_ {{w} {layout} {col}} {
   $w configure -displaycolumns $::glist_ColOrder($layout)
 }
 
-proc glist.release_ {{w} {x} {y} {layout}} {
-  switch $::ttk::treeview::State(pressMode) {
-    resize {
-      set col_id [$w column $::ttk::treeview::State(resizeColumn) -id]
-      set i [lsearch -exact $::glist_Headers $col_id]
-      if {$i != -1} {
-        lset ::glist_ColWidth($layout) $i [$w column $::ttk::treeview::State(resizeColumn) -width]
-      }
+proc glist.release_ {{w} {x} {y} {event_state} {layout}} {
+  if {$::ttk::treeview::State(pressMode) eq "resize"} {
+    set col_id [$w column $::ttk::treeview::State(resizeColumn) -id]
+    set i [lsearch -exact $::glist_Headers $col_id]
+    if {$i != -1} {
+      lset ::glist_ColWidth($layout) $i [$w column $::ttk::treeview::State(resizeColumn) -width]
     }
-    heading {
-      lassign [$w identify $x $y] what
-      if {$what == "heading"} {
-        set new_col [$w identify column $x $y]
-        set from [expr [string trimleft $::ttk::treeview::State(heading) {#}] -1]
-        set to [expr [string trimleft $new_col {#}] -1]
+  } elseif {[$w identify region $x $y] eq "heading"} {
+    set from $::ttk::treeview::State(activeHeading)
+    if {$from ne ""} {
+      set to [$w identify column $x $y]
+      if {$from != $to} {
+        set from [expr {[string range $from 1 end] -1}]
+        set to [expr {[string range $to 1 end] -1}]
         set val [lindex $::glist_ColOrder($layout) $from]
-        if {$from != $to} {
-          set ::glist_ColOrder($layout) [lreplace $::glist_ColOrder($layout) $from $from]
-          set ::glist_ColOrder($layout) [linsert $::glist_ColOrder($layout) $to $val]
-          $w configure -displaycolumns $::glist_ColOrder($layout)
-        } else {
-          glist.sortClickHandle_ $w $x $y $layout
-        }
+        set ::glist_ColOrder($layout) [lreplace $::glist_ColOrder($layout) $from $from]
+        set ::glist_ColOrder($layout) [linsert $::glist_ColOrder($layout) $to $val]
+        $w configure -displaycolumns $::glist_ColOrder($layout)
+      } else {
+        glist.sortClickEvent_ $w $x $y $event_state $layout
       }
     }
   }
