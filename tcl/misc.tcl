@@ -322,11 +322,8 @@ proc progressWindow { title text {button ""} {command "progressBarCancel"} } {
   set y [expr ([winfo screenheight $w] - 40) / 2]
   wm geometry $w +$x+$y
   grab $w
-  wm withdraw $w
 
   progressBarSet $w.f.c 401 21
-
-  set ::progressCanvas(show) "catch {wm deiconify $w}"
 }
 
 proc progressBarSet { canvasname width height } {
@@ -336,7 +333,6 @@ proc progressBarSet { canvasname width height } {
   set ::progressCanvas(h) $height
   set ::progressCanvas(cancel) 0
   set ::progressCanvas(init) 1
-  set ::progressCanvas(show) {}
   set ::progressCanvas(time) [clock milliseconds]
   after idle { unset ::progressCanvas(init) }
 }
@@ -367,12 +363,6 @@ proc progressCallBack {done {msg ""}} {
   } else {
     set elapsed [expr { $elapsed / 1000 }]
     set estimated $elapsed
-  }
-
-  if {$::progressCanvas(show) != ""} {
-    if {$elapsed == 0 && $estimated < 2 && $msg == ""} { return }
-    eval $::progressCanvas(show)
-    set ::progressCanvas(show) {}
   }
 
   set width [expr { int(double($::progressCanvas(w)) * double($done)) }]

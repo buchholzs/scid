@@ -20,9 +20,26 @@ if { $macOS } {
 
   $m add separator
 
-  proc ::tk::mac::OpenDocument { files } {
-    foreach f $files { ::file::Open $f}
+  proc ::tk::mac::OpenDocument { args } {
+    # The opening of big databases displays a progress bar that must process
+    # the events to allow user interruption.
+    # If another ::tk::mac::OpenDocument event is generated in the meantime,
+    # this procedure is re-entered before the previous execution has finished.
+    if {[info exists ::mac_open_queue]} {
+      lappend ::mac_open_queue {*}$args
+      return
+    }
+    set ::mac_open_queue $args
+    while {[llength $::mac_open_queue]} {
+      set files $::mac_open_queue
+      set ::mac_open_queue {}
+      foreach f $files {
+        ::file::Open $f
+      }
+    }
+    unset ::mac_open_queue
   }
+
   # To Quit (cmd-q)
   proc ::tk::mac::Quit { args } { ::file::Exit }
 
