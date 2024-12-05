@@ -1,11 +1,35 @@
 ########################################################################
 ### Games list window
-# Copyright (C) 2011-2014 Fulvio Benini
+# Copyright (C) 2011-2024 Fulvio Benini
 #
 # This file is part of Scid (Shane's Chess Information Database).
 # Scid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation.
+
+# Default layouts
+::options.store ::glist_ColOrder(RatingDate) {{7} {1} {2} {3} {4} {5} {6} {23} {22} {8} {9} {10} {11} {12} {13} {14} {15} {16} {0}}
+::options.store ::glist_ColWidth(RatingDate) {{50} {50} {50} {120} {40} {120} {40} {80} {200} {30}  {200} {30} {20} {20} {20} {20} {35} {50} {30} {100} {40} {40} {50} {140}}
+::options.store ::glist_ColAnchor(RatingDate) {{e} {c} {c} {w} {c} {w} {c} {w} {w} {e}  {w} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {w}}
+::options.store ::glist_Sort(RatingDate) { {22} {-} {7} {-} }
+::options.store ::glist_FindBar(RatingDate) 0
+::options.store ::glist_ColOrder(DateEvent) {7 3 4 5 6 1 23 8 9 10 0}
+::options.store ::glist_ColWidth(DateEvent) {50 50 50 120 40 120 40 80 145 30 112 30 20 20 20 20 35 50 30 100 40 40 50 153}
+::options.store ::glist_ColAnchor(DateEvent) {{e} {c} {c} {w} {c} {w} {c} {w} {w} {e}  {w} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {w}}
+::options.store ::glist_Sort(DateEvent) {7 - 8 - 9 -}
+::options.store ::glist_FindBar(DateEvent) 0
+::options.store ::glist_ColOrder(Full) {20 7 3 4 5 6 1 2 23 8 19 10 9 16 17 22 21 18 11 12 13 14 15 0}
+::options.store ::glist_ColWidth(Full) {50 50 39 120 40 120 40 70 200 30 200 30 20 20 20 20 35 119 30 78 40 40 50 155}
+::options.store ::glist_ColAnchor(Full) {{e} {c} {c} {w} {c} {w} {c} {w} {w} {e}  {w} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {c} {w}}
+::options.store ::glist_Sort(Full) {0 +}
+::options.store ::glist_FindBar(Full) 0
+::options.store ::glist_Layouts {RatingDate DateEvent Full}
+# Store custom layouts
+::options.store ::glist_ColOrder
+::options.store ::glist_ColWidth
+::options.store ::glist_ColAnchor
+::options.store ::glist_Sort
+::options.store ::glist_FindBar
 
 proc ::windows::gamelist::Open { {base ""} {filter ""} } {
 	if {$base == ""} { set base [sc_base current] }
@@ -176,9 +200,7 @@ proc ::windows::gamelist::SetBase {{w} {base} {filter "dbfilter"}} {
 	set ::gamelistBase($w) $base
 	set ::gamelistFilter($w) $filter
 	if { $::gamelistPosMask($w) != 0 } {
-		#hack: set gamelistPosMask to trick searchpos_
-		set ::gamelistPosMask($w) 0
-		::windows::gamelist::searchpos_ $w
+		$w.buttons.boardFilter invoke
 	} else {
 		::windows::gamelist::DatabaseModified $::gamelistBase($w) $::gamelistFilter($w)
 	}
@@ -436,8 +458,21 @@ proc ::windows::gamelist::createMenu_ {w} {
 	ttk::button $w.buttons.database -image tb_database -command "::windows::gamelist::menu_ $w database"
 	ttk::button $w.buttons.filter -image tb_search_on -command "::windows::gamelist::menu_ $w filter"
 	ttk::button $w.buttons.layout -image tb_Layout -command "::windows::gamelist::menu_ $w layout"
-	ttk::button $w.buttons.stats -image tb_Stats -command "::windows::gamelist::menu_ $w stats; ::windows::gamelist::updateStats_ $w"
-	ttk::button $w.buttons.boardFilter -image tb_BoardMask -command "::windows::gamelist::searchpos_ $w"
+	# TODO: Use a single button for statistics and positional search
+	# It doesn't make sense to show statistics if positional search is not selected.
+	# But I also want the ability to hide the statistics when positional search is selected.
+	ttk::button $w.buttons.stats -image tb_Stats -command [list apply {{w} {
+		::windows::gamelist::menu_ $w stats;
+		if {$::gamelistMenu($w) ne "" && ! $::gamelistPosMask($w)} {
+			::windows::gamelist::searchpos_ $w
+		}
+	}} $w]
+	ttk::button $w.buttons.boardFilter -image tb_BoardMask -command [list apply {{w} {
+		if {($::gamelistMenu($w) ne "stats") eq ! $::gamelistPosMask($w)} {
+			::windows::gamelist::menu_ $w stats
+		}
+		::windows::gamelist::searchpos_ $w
+	}} $w]
 	menu $w.menu_export
 	ttk::button $w.buttons.export -image tb_gl_filter_export -command [list apply {{w menu btn} {
 		::windows::gamelist::createExportMenu_ $w $menu
@@ -450,8 +485,6 @@ proc ::windows::gamelist::createMenu_ {w} {
 		if {$y >= $mh} { incr y -$mh } { incr y $bh }
 		tk_popup $menu $x $y
 	}} $w $w.menu_export $w.buttons.export]
-	#TODO:
-	#ttk::button $w.buttons.stats -image b_bargraph
 	::utils::tooltip::Set $w.buttons.database $::tr(ShowHideDB)
 	::utils::tooltip::Set $w.buttons.filter $::tr(ChangeFilter)
 	::utils::tooltip::Set $w.buttons.layout $::tr(ChangeLayout)
@@ -831,9 +864,12 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   menu $w.glist.header_menu.addcol
   menu $w.glist.game_menu
   bind $w.glist <Configure> {
-    set ::glistVisibleLn(%W) [expr int([winfo height %W] / $::glistRowHeight)]
-    after cancel "glist.loadvalues_ %W"
-    after idle "glist.loadvalues_ %W"
+    set rows [expr int([winfo height %W] / $::glistRowHeight)]
+    if {$rows ne $::glistVisibleLn(%W)} {
+        set ::glistVisibleLn(%W) $rows
+        after cancel "glist.loadvalues_ %W"
+        after idle "glist.loadvalues_ %W"
+    }
   }
   if {$::windowsOS} {
     bind $w.glist <App> "glist.popupmenu_ %W %x %y %X %Y $layout"
@@ -893,7 +929,6 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   set ::glistYScroll($w.glist) [$w.glist cget -yscrollcommand]
   $w.glist configure -yscrollcommand "glist.yscroll_ $w.glist"
   $w.ybar configure -command "glist.ybar_ $w.glist"
-  bind $w.ybar <ButtonRelease-1> "+glist.ybar_ $w.glist buttonrelease"
   bindMouseWheel $w.glist "glist.ybar_ $w.glist"
 
   # Find widget
@@ -976,6 +1011,7 @@ proc glist.layout_apply {w layout new_ly} {
   destroy {*}[winfo children $w]
   glist.create $w $layout [expr {$new_ly eq "DEFAULT"}]
   glist.update $w $base $filter
+  glist.sortStore_ $w.glist $layout
 }
 
 # Save a full layout (appearance and sorting) as CustomN
@@ -1017,11 +1053,11 @@ proc glist.destroy_ {{w}} {
     unset ::glistSortCache($w)
   }
   unset ::glistSortStr($w)
-  catch { unset ::glistBase($w) }
-  catch { unset ::glistFilter($w) }
-  catch { unset ::glistFirst($w) }
-  catch { unset ::glistClickOp($w) }
-  catch { unset ::glistVisibleLn($w) }
+  unset -nocomplain ::glistBase($w)
+  unset -nocomplain ::glistFilter($w)
+  unset -nocomplain ::glistFirst($w)
+  unset -nocomplain ::glistClickOp($w)
+  unset ::glistVisibleLn($w)
   unset ::glistLoaded($w)
   unset ::glistTotal($w)
   unset ::glistYScroll($w)
@@ -1041,6 +1077,7 @@ proc glist.update_ {{w} {base}} {
   }
   set ::glistSortCache($w) $::glistSortStr($w)
   set ::glistBase($w) $base
+  after cancel "glist.loadvalues_ $w"
   glist.loadvalues_ $w
 }
 
@@ -1185,7 +1222,7 @@ proc glist.removeFromFilter_ {{w} {idx} {dir ""}} {
     sc_filter remove $::glistBase($w) $::glistFilter($w) $idx $dir $::glistSortStr($w)
   }
   ::notify::DatabaseModified $::glistBase($w) $::glistFilter($w)
-  if {$dir == "+"} { glist.ybar_ $w moveto 1 }
+  if {$dir == "+"} { glist.ybar_ $w moveto 1.0 }
 }
 
 proc glist.popupmenu_ {{w} {x} {y} {abs_x} {abs_y} {layout}} {
@@ -1375,9 +1412,15 @@ proc glist.sort_ {{w} {col_idx} {layout} {clear 0}} {
   busyCursor $w
   update idletasks
   glist.sortInit_ $w $layout
+  glist.update_ $w $::glistBase($w)
+  glist.sortStore_ $w $layout
+  unbusyCursor $w
+}
+
+proc glist.sortStore_ {w layout} {
   set file [sc_base filename $::glistBase($w)]
   if {[info exists ::recentSort]} {
-    set idx [lsearch -exact $::recentSort "$file"]
+    set idx [lsearch -exact $::recentSort $file]
     if {$idx != -1} {
       set ::recentSort [lreplace $::recentSort $idx [expr $idx +1] ]
     }
@@ -1385,9 +1428,7 @@ proc glist.sort_ {{w} {col_idx} {layout} {clear 0}} {
       set ::recentSort [lreplace $::recentSort 0 1]
     }
   }
-  lappend ::recentSort "$file" "$::glist_Sort($layout)"
-  glist.update_ $w $::glistBase($w)
-  unbusyCursor $w
+  lappend ::recentSort $file $::glist_Sort($layout)
 }
 
 # Scrollbar
