@@ -758,21 +758,25 @@ proc options.write {} {
       }
     }
 
-    # Save var that was added with options.store()
+    # Save vars that were added with options.store()
     if {[info exists ::autosave_opt]} {
-      set ::autosave_opt [lsort -dictionary $::autosave_opt]
+      set opt_sorted [lsort -dictionary $::autosave_opt]
       puts $optionF ""
-      puts $optionF "set ::autosave_opt [list $::autosave_opt]"
-      foreach ns [lsort -unique [lmap elem $::autosave_opt { namespace qualifiers $elem }]] {
+      puts $optionF "set ::autosave_opt [list $opt_sorted]"
+      foreach ns [lsort -unique [lmap elem $opt_sorted { namespace qualifiers $elem }]] {
         if {$ns eq ""} { continue }
         puts $optionF "namespace eval $ns {}"
       }
-      foreach {var} $::autosave_opt {
-        if {[array exists $var]} {
-            puts $optionF "array set $var [list [array get $var]]"
+      set vars {}
+      foreach elem $opt_sorted {
+        if {[array exists $elem]} {
+          lappend vars {*}[lmap name [array names $elem] {subst "$elem\($name\)"}]
         } else {
-            puts $optionF "set $var [list [set $var]]"
+          lappend vars $elem
         }
+      }
+      foreach var [lsort -unique $vars] {
+        puts $optionF "set $var [list [set $var]]"
       }
     }
 
