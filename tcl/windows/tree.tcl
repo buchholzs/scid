@@ -432,7 +432,7 @@ proc ::tree::displayLines { baseNumber moves } {
       set hasPositionComment 1
       set firstLine [ lindex [split $posComment "\n"] 0 ]
       $w.f.tl insert end "$firstLine\n" [ list bluefg tagtooltip_poscomment ]
-      ::utils::tooltip::SetTag $w.f.tl $posComment tagtooltip_poscomment
+      ::utils::tooltip::Set $w.f.tl -tag tagtooltip_poscomment $posComment
       $w.f.tl tag bind tagtooltip_poscomment <Double-Button-1> "::tree::mask::addComment"
     }
   }
@@ -496,7 +496,7 @@ proc ::tree::displayLines { baseNumber moves } {
       if {$comment != ""} {
         set firstLine [ lindex [split $comment "\n"] 0 ]
         $w.f.tl insert end " $firstLine" tagtooltip$i
-        ::utils::tooltip::SetTag $w.f.tl $comment tagtooltip$i
+        ::utils::tooltip::Set $w.f.tl -tag tagtooltip$i $comment
         $w.f.tl tag bind tagtooltip$i <Double-Button-1> "::tree::mask::addComment $move"
       }
     }
@@ -555,7 +555,7 @@ proc ::tree::displayLines { baseNumber moves } {
       set comment [lindex $m 3]
       set firstLine [ lindex [split $comment "\n"] 0 ]
       $w.f.tl insert end " $firstLine\n" tagtooltip$idx
-      ::utils::tooltip::SetTag $w.f.tl $comment tagtooltip$idx
+      ::utils::tooltip::Set $w.f.tl -tag tagtooltip$idx $comment
 
       # Bind right button to popup a contextual menu:
       $w.f.tl tag bind tagclick$idx <ButtonPress-$::MB3> "::tree::mask::contextMenu $w.f.tl  [lindex $m 0] %x %y %X %Y ; break"

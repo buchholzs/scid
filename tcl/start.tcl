@@ -34,6 +34,7 @@ exec `dirname $0`/tkscid "$0" "$@"
 ############################################################
 
 package require Tk  8.6
+set useLocalTooltip [catch {package require tooltip 2.0}]
 
 set scidVersion [sc_info version]
 set scidVersionDate [sc_info version date]
@@ -42,7 +43,6 @@ set scidVersionExpected "5.0.2"
 # Check that the version of c++ code matches the version of tcl code
 #
 if {[string compare $::scidVersion $::scidVersionExpected]} {
-  wm withdraw .
   set msg "This is Scid version $::scidVersion, but the scid GUI (tcl/tk code)\n"
   append msg "has the version number $scidVersionExpected.\n"
   tk_messageBox -type ok -icon error -title "Scid: Version Error" -message $msg
@@ -180,6 +180,15 @@ if {[catch {InitImg}]} {
   exit
 }
 
+proc InitTooltip {} {
+  if {$::useLocalTooltip} {
+    source [file nativename [file join $::scidTclDir "utils/tklib_tooltip.tcl"]]
+  }
+  namespace eval ::utils::tooltip {
+    proc Set {args} { tooltip::tooltip {*}$args }
+  }
+}
+InitTooltip
 
 #############################################################
 #
@@ -217,7 +226,6 @@ foreach ns {
   ::config ::docking
   ::pinfo
   ::unsafe
-  ::utils::tooltip
 } {
   namespace eval $ns {}
 }
@@ -518,6 +526,11 @@ proc configure_style {} {
   option add *TCombobox*Listbox.selectBackground [ttk::style lookup . -selectbackground] startupFile
   option add *TCombobox*Listbox.selectForeground [ttk::style lookup . -selectforeground] startupFile
 
+  # Configure tooltips appearance
+  ::tooltip::tooltip configure \
+    -background [ttk::style lookup . -fieldbackground "" white] \
+    -foreground [ttk::style lookup . -foreground]
+
   # Add the theme's specific options
   foreach elem [lsearch -all -inline -exact -index 0 $::themeOptions [ttk::style theme use]] {
     option add [lindex $elem 1] [lindex $elem 2]
@@ -669,7 +682,6 @@ utils/history.tcl
 utils/pane.tcl
 utils/sound.tcl
 utils/string.tcl
-utils/tooltip.tcl
 utils/validate.tcl
 utils/win.tcl
 enginecfg.tcl
