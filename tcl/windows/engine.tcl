@@ -184,9 +184,7 @@ proc ::enginewin::createDisplayFrame {id display} {
     }
     $display.pv_lines tag bind moves <Motion> [list apply {{id} {
         %W tag remove markmove 1.0 end
-        if {[%W tag ranges sel] eq "" && ![catch {
-                # An exception will be thrown if the engine sent an illegal pv
-                sc_pos board [set ::enginewin::position_$id] [::enginewin::getMoves %W @%x,%y] } pos]} {
+        if {[%W tag ranges sel] eq ""} {
             # TODO:
             # Using wordstart and wordend would be a lot more efficient.
             # However they do not consider the [+.-] chars as part of the word.
@@ -194,7 +192,18 @@ proc ::enginewin::createDisplayFrame {id display} {
             # %W tag add markmove $movestart "$movestart wordend"
             set movestart "[%W search -backwards -regexp {\s} "@%x,%y"] +1chars"
             %W tag add markmove $movestart [%W search " " $movestart]
-            ::board::popup .enginewinBoard $pos %X %Y
+
+            set startpos [set ::enginewin::position_$id]
+            set moves [::enginewin::getMoves %W $movestart]
+            # An exception will be thrown if the engine sent an illegal pv
+            if {[catch {sc_pos board $startpos $moves} pos]} {
+                destroy .enginewinBoard
+            } else {
+                lassign [%W bbox $movestart] x y width height
+                set x [expr {$x + [winfo rootx %W] + $width}]
+                incr y [winfo rooty %W]
+                ::board::popup .enginewinBoard $pos $x $y $height
+            }
         } else {
             destroy .enginewinBoard
         }
@@ -222,11 +231,13 @@ proc ::enginewin::createButtonsBar {id btn display} {
     "
     bind $btn.lock <Any-Enter> [list apply {{id} {
         if {"pressed" in [%W state]} {
-            ::board::popup .enginewinBoard [sc_pos board [set ::enginewin::position_$id] ""] %X %Y above
+            set y [winfo rooty %W]
+            set bh [winfo height %W]
+            ::board::popup .enginewinBoard [sc_pos board [set ::enginewin::position_$id] ""] %X $y $bh
         }
     }} $id]
     bind $btn.lock <Any-Leave> {
-        catch { wm withdraw .enginewinBoard }
+        destroy .enginewinBoard
     }
     ::utils::tooltip::Set $btn.lock [tr LockEngine]
 

@@ -383,9 +383,9 @@ proc ::board::san {sqno} {
 }
 
 # Show a pop-up board.
-# xc and yc are the coordinates of the top-left corner, or the bottom-left
-# corner if above is not "".
-proc ::board::popup {w positionLongStr xc yc {above ""}} {
+# The board will be shown centered at xc and above yc.
+# If there is not enough space, or above is false, it will be shown below (yc + h_offset)
+proc ::board::popup {w positionLongStr xc yc {h_offset 20} {above true}} {
     set psize 30
     if {$psize > $::boardSize} { set psize $::boardSize }
 
@@ -395,6 +395,8 @@ proc ::board::popup {w positionLongStr xc yc {above ""}} {
         ::board::new $w.bd $psize
         grid $w.bd
         ::update idletasks
+        # Check if it was destroyed during the idletasks
+        if {! [winfo exists $w]} { return }
     }
 
     lassign $positionLongStr pos lastmove
@@ -405,26 +407,17 @@ proc ::board::popup {w positionLongStr xc yc {above ""}} {
     }
 
     # Make sure the popup window can fit on the screen:
-    set screenwidth [winfo screenwidth $w]
-    set screenheight [winfo screenheight $w]
-    set dx [winfo width $w]
-    set dy [winfo height $w]
-    incr xc 8
-    if {($xc+$dx) > $screenwidth} {
-        set xc [expr {$screenwidth - $dx}]
-    }
-    if {($yc+$dy) > ($screenheight -8)} {
-            set above 1
-    }
-    if {$above ne ""} {
-        set yc [expr { $yc -$dy -8 }]
-        if {$yc < 0} { set yc 0 }
-    } else {
-        incr yc 8
-    }
+    set screen_w [winfo vrootwidth $w]
+    set screen_h [winfo vrootheight $w]
+    set top_y [winfo rooty .]
+    set dx [winfo reqwidth $w]
+    set dy [winfo reqheight $w]
+    set xc [expr {max(0, $xc - int($dx / 2))}]
+    set xc [expr {min($xc, $screen_w - $dx)}]
+    if {$yc < $dy + $top_y} { set above false }
+    if {$yc + $dy > $screen_h} { set above true }
+    if {$above} { set yc [expr {max(0, $yc - $dy)}] } { incr yc $h_offset }
     wm geometry $w "+$xc+$yc"
-    wm deiconify $w
-    raiseWin $w
 }
 
 # ::board::new
@@ -1564,7 +1557,7 @@ proc  ::board::lastMoveHighlight {w moveuci {nag ""}} {
         ::board::mark::DrawArrow $w.bd $square1 $square2 $::highlightLastMoveColor
     }
     if { $::highlightLastMoveNag && [regexp {[!?]+} $nag nag] } {
-        # green background for ! !! !?  red background for ? ?? ?! 
+        # green background for ! !! !?  red background for ? ?? ?!
         set color [expr {[string index $nag 0] eq "!" ? "#30c030" : "#ff3030"}]
         ::board::mark::DrawNag $w $square2 $nag $color
     }
