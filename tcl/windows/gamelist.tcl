@@ -863,14 +863,6 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   menu $w.glist.header_menu
   menu $w.glist.header_menu.addcol
   menu $w.glist.game_menu
-  bind $w.glist <Configure> {
-    set rows [expr int([winfo height %W] / $::glistRowHeight)]
-    if {$rows ne $::glistVisibleLn(%W)} {
-        set ::glistVisibleLn(%W) $rows
-        after cancel "glist.loadvalues_ %W"
-        after idle "glist.loadvalues_ %W"
-    }
-  }
   if {$::windowsOS} {
     bind $w.glist <App> "glist.popupmenu_ %W %x %y %X %Y $layout"
   } else {
@@ -1091,7 +1083,9 @@ proc glist.loadvalues_ {{w}} {
     set current_game -1
   }
   set i 0
-  foreach {idx line deleted} [sc_base gameslist $base $::glistFirst($w) $::glistVisibleLn($w)\
+  set n $::glistVisibleLn($w)
+  if {$n} { incr n } { set n 20 }
+  foreach {idx line deleted} [sc_base gameslist $base $::glistFirst($w) $n \
                                         $::glistFilter($w) $::glistSortStr($w)] {
     if {[lindex $line 1] == "=-="} { set line [lreplace $line 1 1 "\u00BD-\u00BD"] }
     $w insert {} end -id $idx -values $line -tag fsmall
@@ -1103,8 +1097,7 @@ proc glist.loadvalues_ {{w}} {
   }
   set ::glistLoaded($w) $i
   catch {$w selection set $sel}
-
-  glist.ybarupdate_ $w
+  glist.yscroll_ $w {*}[$w yview]
 }
 
 proc glist.showfindbar_ {{w} {layout} {show ""}} {
@@ -1441,16 +1434,16 @@ proc glist.ybar_ {w cmd {n 0} {units ""}} {
   }
   if { $cmd == "scroll" || $cmd == "moveto"} {
     if {$cmd == "moveto"} {
-      set ::glistFirst($w) [expr int(ceil($n * $::glistTotal($w)))]
+      set ::glistFirst($w) [expr { int(ceil($n * $::glistTotal($w))) }]
     } else {
       if {$units == "pages"} {
-        set ::glistFirst($w) [expr $::glistFirst($w) + $n * ($::glistVisibleLn($w))]
+        set ::glistFirst($w) [expr { $::glistFirst($w) + $n * $::glistVisibleLn($w) }]
       } else {
-        set ::glistFirst($w) [expr $::glistFirst($w) + $n]
+        set ::glistFirst($w) [expr { $::glistFirst($w) + $n }]
       }
     }
 
-    set d [expr $::glistTotal($w) - $::glistVisibleLn($w)]
+    set d [expr { $::glistTotal($w) - $::glistVisibleLn($w) }]
     if {$::glistFirst($w) > $d } { set ::glistFirst($w) $d }
     if { $::glistFirst($w) < 0 } { set ::glistFirst($w) 0 }
 
@@ -1459,22 +1452,32 @@ proc glist.ybar_ {w cmd {n 0} {units ""}} {
   }
 }
 
-proc glist.ybarupdate_ {w} {
-  if {$::glistTotal($w) == 0} {
-    set first 0.0
-    set last 1.0
-  } else {
-    set ::glistVisibleLn($w) [expr int($::glistVisibleLn($w) * [lindex [$w yview] 1])]
-    set first [expr double($::glistFirst($w)) / $::glistTotal($w)]
-    set last [expr double($::glistFirst($w) + $::glistVisibleLn($w)) / $::glistTotal($w)]
+proc glist.yscroll_ {w first last} {
+  # TODO: find a better way to prevent yview from moving the view off 0.0
+  if {$first != 0} { return [$w yview moveto 0.0] }
+
+  if {$last == 0} { return }
+
+  if {$first == 0 && $last == 1} {
+    if {$::glistFirst($w) + $::glistLoaded($w) < $::glistTotal($w)} {
+      # Load more games
+      set ::glistVisibleLn($w) \
+          [expr { 2 * max($::glistLoaded($w), $::glistVisibleLn($w), 50) }]
+      after cancel "glist.loadvalues_ $w"
+      after idle "glist.loadvalues_ $w"
+      return
+    }
+    if {$::glistFirst($w) == 0} {
+      return [{*}$::glistYScroll($w) $first $last]
+    }
+  }
+  if {$::glistTotal($w) != 0} {
+    set ::glistVisibleLn($w) [expr { int($::glistLoaded($w) * $last) }]
+    set tot [expr { double($::glistTotal($w)) }]
+    set first [expr { $::glistFirst($w) / $tot }]
+    set last [expr { ($::glistFirst($w) + $::glistVisibleLn($w) ) / $tot }]
   }
   {*}$::glistYScroll($w) $first $last
-}
-
-proc glist.yscroll_ {w first last} {
-  if { $::glistLoaded($w) == $::glistTotal($w) } {
-    eval $::glistYScroll($w) $first $last
-  }
 }
 
 #Drag and drop and changes in column's layout
