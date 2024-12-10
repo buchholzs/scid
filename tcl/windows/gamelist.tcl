@@ -457,7 +457,6 @@ proc ::windows::gamelist::createMenu_ {w} {
 	ttk::frame $w.buttons -padding {5 5 2 5}
 	ttk::button $w.buttons.database -image tb_database -command "::windows::gamelist::menu_ $w database"
 	ttk::button $w.buttons.filter -image tb_search_on -command "::windows::gamelist::menu_ $w filter"
-	ttk::button $w.buttons.layout -image tb_Layout -command "::windows::gamelist::menu_ $w layout"
 	# TODO: Use a single button for statistics and positional search
 	# It doesn't make sense to show statistics if positional search is not selected.
 	# But I also want the ability to hide the statistics when positional search is selected.
@@ -487,16 +486,14 @@ proc ::windows::gamelist::createMenu_ {w} {
 	}} $w $w.menu_export $w.buttons.export]
 	::utils::tooltip::Set $w.buttons.database $::tr(ShowHideDB)
 	::utils::tooltip::Set $w.buttons.filter $::tr(ChangeFilter)
-	::utils::tooltip::Set $w.buttons.layout $::tr(ChangeLayout)
 	::utils::tooltip::Set $w.buttons.stats $::tr(ShowHideStatistic)
 	::utils::tooltip::Set $w.buttons.boardFilter $::tr(BoardFilter)
 	::utils::tooltip::Set $w.buttons.export [tr ToolsExpFilter]
 	grid $w.buttons.database -row 0
 	grid $w.buttons.filter -row 1
-	grid $w.buttons.layout -row 2
-	grid $w.buttons.stats -row 3
-	grid $w.buttons.boardFilter -row 4
-	grid $w.buttons.export -row 5
+	grid $w.buttons.stats -row 2
+	grid $w.buttons.boardFilter -row 3
+	grid $w.buttons.export -row 4
 	grid $w.buttons -row 0 -column 0 -sticky news
 
 	ttk::frame $w.database -padding {0 5 6 2}
@@ -532,13 +529,6 @@ proc ::windows::gamelist::createMenu_ {w} {
 	grid $w.filter.b.bsearch
 	grid $w.filter.b.msearch
 	grid $w.filter.b.crosst
-
-	ttk::frame $w.layout -padding {0 5 6 2}
-	ttk::frame $w.layout.b -borderwidth 2 -relief groove
-	grid $w.layout.b -sticky news
-	grid rowconfigure $w.layout 0 -weight 1
-	grid columnconfigure $w.layout 0 -weight 1
-	::glist_Ly::Create $w
 
 	ttk::frame $w.stats -padding {0 5 6 2}
 	ttk::frame $w.stats.b -borderwidth 2 -relief groove
@@ -752,82 +742,6 @@ proc ::windows::gamelist::updateStats_ { {w} } {
 	incr line -$lineH
 	$w.stats.b.c configure -scrollregion [list 0 0 $winW $line] -width $winW
 }
-
-namespace eval ::glist_Ly {
-	proc Create {w} {
-		if {! [info exists ::glist_Layouts] } { set ::glist_Layouts {} }
-		set ::gamelistNewLayout [::glist_Ly::createName_]
-		canvas $w.layout.b.c -highlightthickness 0
-		::applyThemeColor_background $w.layout.b.c
-		autoscrollBars y $w.layout.b $w.layout.b.c
-		bind $w.layout.b.c <Configure>  { ::glist_Ly::AdjScrollbar_ %W }
-		::glist_Ly::Update_ $w
-	}
-	proc UpdateAll_ {} {
-		foreach w $::windows::gamelist::wins {
-		    if {[winfo exists $w]} { Update_ $w }
-		}
-	}
-	proc Update_ {w} {
-		if {[winfo exists $w.layout.b.c.f]} { destroy $w.layout.b.c.f}
-		ttk::frame $w.layout.b.c.f -padding 5
-		$w.layout.b.c create window 0 0 -window $w.layout.b.c.f -anchor nw
-		ttk::entry $w.layout.b.c.f.text_new -textvariable ::gamelistNewLayout -width 12
-		ttk::button $w.layout.b.c.f.new -image tb_new -command "::glist_Ly::New_ $w"
-		grid $w.layout.b.c.f.text_new $w.layout.b.c.f.new
-		ttk::frame $w.layout.b.c.f.sep -padding { 0 4 0 4 }
-		ttk::separator $w.layout.b.c.f.sep.line
-		grid rowconfigure $w.layout.b.c.f.sep 0 -weight 1
-		grid columnconfigure $w.layout.b.c.f.sep 0 -weight 1
-		grid $w.layout.b.c.f.sep.line -sticky news
-		grid $w.layout.b.c.f.sep -columnspan 2 -sticky we
-		for {set i 0} {$i < [llength $::glist_Layouts]} {incr i} {
-			set name [lindex $::glist_Layouts $i]
-			ttk::button $w.layout.b.c.f.layout$i -text $name -width 12 -command "::glist_Ly::Change_ $w $i"
-			ttk::button $w.layout.b.c.f.layoutDel$i -image tb_trashcan -command "::glist_Ly::Del_ $w $i"
-			grid $w.layout.b.c.f.layout$i $w.layout.b.c.f.layoutDel$i -sticky we
-		}
-		after idle "::glist_Ly::AdjScrollbar_ $w.layout.b.c"
-	}
-	proc New_ {w} {
-		set newLy $::gamelistNewLayout
-		Copy_ $newLy ly$w
-		set replaced [lsearch -exact $::glist_Layouts $newLy]
-		if {$replaced == -1 }  { lappend ::glist_Layouts $newLy }
-		set ::gamelistNewLayout [::glist_Ly::createName_]
-		::glist_Ly::UpdateAll_
-	}
-	proc Del_ {w idx} {
-		set old_layout [lindex $::glist_Layouts $idx]
-  		set ::glist_Layouts [lreplace $::glist_Layouts $idx $idx]
-		::glist_Ly::UpdateAll_
-	}
-	proc Change_ {w idx} {
-		Copy_ ly$w [lindex $::glist_Layouts $idx]
-		::windows::gamelist::createGList_ $w
-		::windows::gamelist::update_ $w 1
-	}
-	proc Copy_ {{oldLy} {newLy}} {
-		set ::glist_ColOrder($oldLy) $::glist_ColOrder($newLy)
-		set ::glist_ColWidth($oldLy) $::glist_ColWidth($newLy)
-		set ::glist_ColAnchor($oldLy) $::glist_ColAnchor($newLy)
-		set ::glist_Sort($oldLy) $::glist_Sort($newLy)
-		set ::glist_FindBar($oldLy) $::glist_FindBar($newLy)
-	}
-	proc createName_ {} {
-		set i 1
-		set prefix "NewLayout"
-		while {[lsearch -exact $::glist_Layouts "$prefix$i"] != -1} { incr i }
-		return "$prefix$i"
-	}
-	proc AdjScrollbar_ {w} {
-		set l [winfo reqwidth $w.f]
-		set h [winfo reqheight $w.f]
-		$w configure -scrollregion [list 0 0 $l $h] -width $l
-	}
-}
-
-
 
 
 
