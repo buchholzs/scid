@@ -66,8 +66,8 @@ proc ::windows::gamelist::Open { {base ""} {filter ""} } {
 	}
 	set w .glistWin$i
 
-	set ::gamelistTitle($w) "[tr WindowsGList]:"
-	::win::createWindow $w $::::gamelistTitle($w)
+	set ::gamelistTitle($w) ""
+	::win::createWindow $w $::gamelistTitle($w)
 	::windows::gamelist::createWin_ $w $base $filter
 }
 
@@ -833,6 +833,7 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   # Find widget
   ttk::frame $w.find
   ttk::frame $w.find.t
+  ttk::label $w.find.size
   ttk::button $w.find.advanced -image ::icon::filter_adv -style Toolbutton -command [list apply {{w} {
     set w_top [regexp -inline {^\.[^.]+} $w]
     ::search::header $::gamelistBase($w_top) $::gamelistFilter($w_top)
@@ -858,7 +859,7 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   #TODO: -from 0 -to 100
   #TODO: set scale position when normal ybar is used
   ttk::scale $w.find.scale -command "glist.ybar_ $w.glist moveto"
-  grid $w.find.reset $w.find.advanced $w.find.t_text $w.find.text \
+  grid $w.find.size $w.find.reset $w.find.advanced $w.find.t_text $w.find.text \
     $w.find.filter $w.find.b2_text $w.find.b1_text -in $w.find.t -padx 2
   grid $w.find.t -row 0 -column 1 -padx 6
   grid $w.find.scale -row 0 -column 3 -sticky ew
@@ -887,6 +888,11 @@ proc glist.update {{w} {base} {filter} {moveUp 1}} {
   lassign [sc_filter sizes $base $filter] ::glistTotal($w.glist) n_games n_main_filter
   if {$moveUp == 1} { set ::glistFirst($w.glist) 0 }
 
+  if {$n_main_filter != $n_games && $n_main_filter != $::glistTotal($w.glist)} {
+    set flt_text "( [::utils::thousands $n_main_filter 100000] -> ) "
+  }
+  append flt_text [::windows::gamelist::formatFilterText $::glistTotal($w.glist) $n_games]
+  $w.find.size configure -text $flt_text
   $w.find.reset configure \
     -state [expr {$n_main_filter eq $n_games ? "disabled" : "normal" }]
 
