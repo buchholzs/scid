@@ -71,7 +71,6 @@ inline int Main (int argc, char* argv[], void (*exit) (void*)) {
 	return 0;
 }
 
-
 class tcl_Progress : public Progress::Impl {
 	UI_handle_t ti_;
 	using clock = std::chrono::high_resolution_clock;
@@ -81,6 +80,11 @@ public:
 	explicit tcl_Progress(UI_handle_t ti) : ti_(ti) {}
 
 	bool report(size_t done, size_t total, const char* msg) final {
+		const auto now = clock::now();
+		if (done != total && now - timer_ < std::chrono::milliseconds{30})
+			return true;
+
+		timer_ = now;
 		Tcl_Obj* cmd[3] = {};
 		cmd[0] = Tcl_NewStringObj("::progressCallBack", -1);
 		cmd[1] = Tcl_NewDoubleObj(total ? (1.0 * done / total) : 1);
