@@ -270,10 +270,10 @@ set ::tree::mask::recentMask {}
 # if ::pgn::showColor is 1, the PGN text will be colorized.
 set ::pgn::showColor 1
 set ::pgn::indentVars 1
-set ::pgn::indentComments 1
+set ::pgn::indentComments 0
 set ::pgn::symbolicNags 1
 set ::pgn::moveNumberSpaces 0
-set ::pgn::shortHeader 1
+set ::pgn::shortHeader 0
 set ::pgn::boldMainLine 1
 set ::pgn::columnFormat 0
 set ::pgn::stripMarks 0
