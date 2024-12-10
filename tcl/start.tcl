@@ -49,6 +49,27 @@ if {[string compare $::scidVersion $::scidVersionExpected]} {
   exit 1
 }
 
+# Helper function for issuing debug messages:
+# trace add execution some_fn {enter leave} trace_log
+# trace add variable some_var {read write array unset} trace_log
+proc trace_log {args} {
+  set bt "::"
+  catch {set bt [info level -1]}
+  if {[lindex $bt 0] eq "trace_log"} { return }
+
+  set msg "\[[clock format [clock seconds] -format {%H:%M:%S}]\]"
+  set op [lindex $args end]
+  if {$op in "read write array"} {
+    lassign $args var_name elem
+    upvar $var_name var
+    if {[array exists var]} { set value $var($elem)} { set value $var}
+    append msg "   $op: $value [list $args]"
+  } else {
+    append msg " $op $args"
+  }
+  puts stderr "$msg - bt: [list $bt]"
+}
+
 # Determine operating system platform: unix, windows or macos
 #
 set windowsOS 0
