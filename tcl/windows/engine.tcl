@@ -146,9 +146,10 @@ proc ::enginewin::Open { {id ""} {enginename ""} } {
     bind $w.config <Destroy> "
         unset ::enginewin::engState($id)
         ::engine::close $id
+        unset ::enginewin::m_(afterId,$id)
         unset ::enginewin::engConfig_$id
         unset ::enginewin::limits_$id
-        unset ::enginewin::position_$id
+        unset ::enginewin::m_(position,$id)
         unset ::enginewin::newgame_$id
         unset ::enginewin::startTime_$id
         ::notify::EngineBestMove $id {} {}
@@ -156,9 +157,10 @@ proc ::enginewin::Open { {id ""} {enginename ""} } {
 
     ::options.store ::enginewin_lastengine($id) ""
     set ::enginewin::engState($id) {}
+    set ::enginewin::m_(afterId,$id) {}
     set ::enginewin::engConfig_$id {}
     set ::enginewin::limits_$id {}
-    set ::enginewin::position_$id ""
+    set ::enginewin::m_(position,$id) ""
     set ::enginewin::newgame_$id true
     set ::enginewin::startTime_$id [clock milliseconds]
 
@@ -183,6 +185,7 @@ proc ::enginewin::createDisplayFrame {id display} {
         }
     }
     $display.pv_lines tag bind moves <Motion> [list apply {{id} {
+        after cancel $::enginewin:::m_(afterId,$id)
         %W tag remove markmove 1.0 end
         if {[%W tag ranges sel] eq ""} {
             # TODO:
@@ -192,18 +195,20 @@ proc ::enginewin::createDisplayFrame {id display} {
             # %W tag add markmove $movestart "$movestart wordend"
             set movestart "[%W search -backwards -regexp {\s} "@%x,%y"] +1chars"
             %W tag add markmove $movestart [%W search " " $movestart]
-
-            set startpos [set ::enginewin::position_$id]
-            set moves [::enginewin::getMoves %W $movestart]
-            # An exception will be thrown if the engine sent an illegal pv
-            if {[catch {sc_pos board $startpos $moves} pos]} {
-                destroy .enginewinBoard
-            } else {
-                lassign [%W bbox $movestart] x y width height
-                set x [expr {$x + [winfo rootx %W] + $width}]
-                incr y [winfo rooty %W]
-                ::board::popup .enginewinBoard $pos $x $y $height
-            }
+            set ::enginewin::m_(afterId,$id) [after 10 [list apply {{id w} {
+                lassign [$w tag nextrange markmove 1.0] index
+                if {$index eq ""} { return }
+                set moves [::enginewin::getMoves $w $index]
+                # An exception will be thrown if the engine sent an illegal pv
+                if {[catch {sc_pos board $::enginewin::m_(position,$id) $moves} pos]} {
+                    destroy .enginewinBoard
+                } else {
+                    lassign [$w bbox $index] x y width height
+                    set x [expr {$x + [winfo rootx $w] + $width}]
+                    incr y [winfo rooty $w]
+                    ::board::popup .enginewinBoard $pos $x $y $height
+                }
+            }} $id %W]]
         } else {
             destroy .enginewinBoard
         }
@@ -233,10 +238,11 @@ proc ::enginewin::createButtonsBar {id btn display} {
         if {"pressed" in [%W state]} {
             set y [winfo rooty %W]
             set bh [winfo height %W]
-            ::board::popup .enginewinBoard [sc_pos board [set ::enginewin::position_$id] ""] %X $y $bh
+            ::board::popup .enginewinBoard [sc_pos board $::enginewin::m_(position,$id) ""] %X $y $bh
         }
     }} $id]
     bind $btn.lock <Any-Leave> {
+        #TODO: on MacOS, this event is triggered when the tooltip is displayed
         destroy .enginewinBoard
     }
     ::utils::tooltip::Set $btn.lock [tr LockEngine]
@@ -320,7 +326,7 @@ proc ::enginewin::changeOption {id name widget_or_value} {
         }
     }
     if {$changed && $prev_state in {run}} {
-        ::enginewin::sendPosition $id [set ::enginewin::position_$id]
+        ::enginewin::sendPosition $id $::enginewin::m_(position,$id)
     }
 }
 
@@ -495,7 +501,7 @@ proc ::enginewin::callback {id msg} {
             ::enginewin::changeState $id idle
         }
         "InfoGo" {
-            lassign $msgData ::enginewin::position_$id ::enginewin::limits_$id
+            lassign $msgData ::enginewin::m_(position,$id) ::enginewin::limits_$id
             ::enginewin::changeState $id run
         }
         "InfoPV" {
@@ -603,7 +609,7 @@ proc ::enginewin::updateDisplay {id msgData} {
 
     set translated untranslated
     if {$notation > 0} {
-        set pv [sc_pos coordToSAN [set ::enginewin::position_$id] $pv]
+        set pv [sc_pos coordToSAN $::enginewin::m_(position,$id) $pv]
     }
     if {$notation == 1 || $notation == -1} {
         set pv [::trans $pv]
