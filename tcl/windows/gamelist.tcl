@@ -826,11 +826,12 @@ proc glist.create {{w} {layout} {reset_layout false}} {
   }
   $w.glist configure -displaycolumns $::glist_ColOrder($layout)
 
-  autoscrollBars both $w $w.glist
+  autoscrollBars both $w $w.glist 1
   set ::glistYScroll($w.glist) [$w.glist cget -yscrollcommand]
   $w.glist configure -yscrollcommand "glist.yscroll_ $w.glist"
   $w.ybar configure -command "glist.ybar_ $w.glist"
   bindMouseWheel $w.glist "glist.ybar_ $w.glist"
+  bind $w.glist <$::COMMAND-f> "event generate $w <<FindBarShow>>"
 
   # Find widget
   ttk::frame $w.find
@@ -891,7 +892,7 @@ proc glist.update {{w} {base} {filter} {moveUp 1}} {
   if {$moveUp == 1} { set ::glistFirst($w.glist) 0 }
 
   if {$n_main_filter != $n_games && $n_main_filter != $::glistTotal($w.glist)} {
-    set flt_text "( [::utils::thousands $n_main_filter 100000] -> ) "
+    set flt_text "([::utils::thousands $n_main_filter 100000]) -> "
   }
   append flt_text [::windows::gamelist::formatFilterText $::glistTotal($w.glist) $n_games]
   $w.find.size configure -text $flt_text
@@ -1023,7 +1024,7 @@ proc glist.showfindbar_ {{w} {layout} {show ""}} {
     grid forget $::glistFindBar($w)
     focus $w
   } else {
-    grid $::glistFindBar($w) -row 2 -columnspan 2 -sticky news
+    grid $::glistFindBar($w) -row 0 -columnspan 2 -sticky news
     focus $::glistFindBar($w).text
     $::glistFindBar($w).text selection range 0 end
   }

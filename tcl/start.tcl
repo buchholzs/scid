@@ -269,9 +269,11 @@ if { $unixOS } {
 if { $macOS } {
   set ::MB2 3
   set ::MB3 2
+  set ::COMMAND Command
 } else {
   set ::MB2 2
   set ::MB3 3
+  set ::COMMAND Control
 }
 
 

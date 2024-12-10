@@ -151,30 +151,31 @@ proc autoscrollframe {args} {
   return $retval
 }
 
-proc autoscrollBars {bars frame w} {
+proc autoscrollBars {bars frame w {frame_row 0}} {
   global _autoscroll
 
-  grid $w -in $frame -row 0 -column 0 -sticky news
+  grid $w -in $frame -row $frame_row -column 0 -sticky news
+  grid rowconfigure $frame $frame_row -weight 1
+  grid columnconfigure $frame 0 -weight 1
 
   if {$bars == "y"  ||  $bars == "both"} {
     ttk::scrollbar $frame.ybar -command [list $w yview] -takefocus 0
     $w configure -yscrollcommand [list _autoscroll $frame.ybar]
-    grid $frame.ybar -row 0 -column 1 -sticky ns
+    grid $frame.ybar -row $frame_row -column 1 -sticky ns
+    grid columnconfigure $frame 1 -weight 0
     set _autoscroll($frame.ybar) 1
     set _autoscroll(time:$frame.ybar) 0
     bindMouseWheel $w "_autoscrollMouseWheel $w $frame.ybar"
   }
+  incr frame_row
   if {$bars == "x"  ||  $bars == "both"} {
     ttk::scrollbar $frame.xbar -command [list $w xview] -takefocus 0 -orient horizontal
     $w configure -xscrollcommand [list _autoscroll $frame.xbar]
-    grid $frame.xbar -row 1 -column 0 -sticky we
+    grid $frame.xbar -row $frame_row -column 0 -sticky we
+    grid rowconfigure $frame $frame_row -weight 0
     set _autoscroll($frame.xbar) 1
     set _autoscroll(time:$frame.xbar) 0
   }
-  grid rowconfigure $frame 0 -weight 1
-  grid columnconfigure $frame 0 -weight 1
-  grid rowconfigure $frame 1 -weight 0
-  grid columnconfigure $frame 1 -weight 0
 }
 
 proc _autoscrollMouseWheel {{w} {bar} {direction}} {
