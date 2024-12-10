@@ -186,10 +186,9 @@ private:
 				ply = base.getGame(ie).search<TOMOVE>(board_, nPieces_);
 				if (ply != 0)
 					filter.set(i, (ply > 255) ? 255 : ply);
-
-				if ((progress++ % 256) == 0 && !prg.report(i, n))
-					return false;
 			}
+			if (progress++ % 512 == 0 && !prg.report(i, n))
+				return false;
 		}
 		return true;
 	}
