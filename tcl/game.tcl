@@ -398,7 +398,7 @@ namespace eval ::notify {
     }
     ::tree::dorefresh $dbase
     ::windows::gamelist::DatabaseModified $dbase $filter
-    ::windows::switcher::Refresh
+    ::windows::switcher::Refresh $dbase $filter
     ::windows::stats::refresh_wnd
     ::maint::Refresh
     if {$filter == -1} {

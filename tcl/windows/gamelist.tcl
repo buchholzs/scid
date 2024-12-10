@@ -131,6 +131,7 @@ proc ::windows::gamelist::FilterReset {{w} {base}} {
 	set f "dbfilter"
 	if {$w != "" && $base == $::gamelistBase($w)}  { set f $::gamelistFilter($w) }
 	sc_filter reset $base $f full
+	lassign [sc_filter components $base $f] f
 	::notify::DatabaseModified $base $f
 }
 
@@ -138,6 +139,7 @@ proc ::windows::gamelist::FilterNegate {{w} {base}} {
 	set f "dbfilter"
 	if {$w != "" && $base == $::gamelistBase($w)}  { set f $::gamelistFilter($w) }
 	sc_filter negate $base $f
+	lassign [sc_filter components $base $f] f
 	::notify::DatabaseModified $base $f
 }
 
@@ -245,7 +247,7 @@ proc ::windows::gamelist::Awesome {{w} {txt}} {
 			closeProgressWindow
 		}
 	}
-	::notify::DatabaseModified $::gamelistBase($w) $::gamelistFilter($w)
+	::notify::DatabaseModified $::gamelistBase($w) $filter
 }
 
 proc ::windows::gamelist::AweInit {} {
@@ -624,16 +626,16 @@ proc ::windows::gamelist::searchpos_ {{w}} {
 }
 
 proc ::windows::gamelist::filterRelease_ {{base} {filter}} {
-	set used 0
+	if {! [sc_base inUse $base]} { return }
+	lassign [sc_filter components $base $filter] filter
 	foreach win $::windows::gamelist::wins {
-		if { $::gamelistBase($win) == $base && $::gamelistFilter($win) == $filter } {
-			incr used
+		if {$base eq $::gamelistBase($win) &&
+			$filter in [sc_filter components $base $::gamelistFilter($win)]} {
+			return
 		}
 	}
-	if {! $used} {
-		catch {sc_filter release $base $filter}
-		::notify::DatabaseModified $base $filter
-	}
+	sc_filter release $base $filter
+	::notify::DatabaseModified $base $filter
 }
 
 proc ::windows::gamelist::updateStats_ { {w} } {
@@ -1127,7 +1129,8 @@ proc glist.removeFromFilter_ {{w} {idx} {dir ""}} {
   } else {
     sc_filter remove $::glistBase($w) $::glistFilter($w) $idx $dir $::glistSortStr($w)
   }
-  ::notify::DatabaseModified $::glistBase($w) $::glistFilter($w)
+  lassign [sc_filter components $::glistBase($w) $::glistFilter($w)] f
+  ::notify::DatabaseModified $::glistBase($w) $f
   if {$dir == "+"} { glist.ybar_ $w moveto 1.0 }
 }
 
