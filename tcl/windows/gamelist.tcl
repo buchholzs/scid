@@ -455,7 +455,6 @@ proc ::windows::gamelist::createWin_ { {w} {base} {filter} } {
 
 proc ::windows::gamelist::createMenu_ {w} {
 	ttk::frame $w.buttons -padding {5 5 2 5}
-	ttk::button $w.buttons.database -image tb_database -command "::windows::gamelist::menu_ $w database"
 	ttk::button $w.buttons.filter -image tb_search_on -command "::windows::gamelist::menu_ $w filter"
 	# TODO: Use a single button for statistics and positional search
 	# It doesn't make sense to show statistics if positional search is not selected.
@@ -484,21 +483,15 @@ proc ::windows::gamelist::createMenu_ {w} {
 		if {$y >= $mh} { incr y -$mh } { incr y $bh }
 		tk_popup $menu $x $y
 	}} $w $w.menu_export $w.buttons.export]
-	::utils::tooltip::Set $w.buttons.database $::tr(ShowHideDB)
 	::utils::tooltip::Set $w.buttons.filter $::tr(ChangeFilter)
 	::utils::tooltip::Set $w.buttons.stats $::tr(ShowHideStatistic)
 	::utils::tooltip::Set $w.buttons.boardFilter $::tr(BoardFilter)
 	::utils::tooltip::Set $w.buttons.export [tr ToolsExpFilter]
-	grid $w.buttons.database -row 0
-	grid $w.buttons.filter -row 1
-	grid $w.buttons.stats -row 2
-	grid $w.buttons.boardFilter -row 3
-	grid $w.buttons.export -row 4
+	grid $w.buttons.filter -row 0
+	grid $w.buttons.stats -row 1
+	grid $w.buttons.boardFilter -row 2
+	grid $w.buttons.export -row 3
 	grid $w.buttons -row 0 -column 0 -sticky news
-
-	ttk::frame $w.database -padding {0 5 6 2}
-	::windows::switcher::Create $w.database $w
-	$w.database.border configure -borderwidth 2 -relief groove
 
 	ttk::frame $w.filter -padding {4 5 6 0}
 	ttk::frame $w.filter.b

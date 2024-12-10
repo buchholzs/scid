@@ -585,20 +585,9 @@ proc ::windows::switcher::releaseMouseEvent {fromBase x y {w .baseWin}} {
   if {! [string match "$w.c.f*" $dropPoint]} {return}
   regexp -all {[0-9]} $dropPoint toBase
   if {$toBase == $fromBase} {
-    if { [info exists ::sw_LinkedGList_($w)] } {
-      if {[::windows::gamelist::GetBase $::sw_LinkedGList_($w)] != "$fromBase"} {
-        ::windows::gamelist::SetBase $::sw_LinkedGList_($w) "$fromBase"
-        ::windows::switcher::Update_ $w
-      } else {
-        popupmenu $w "$w.c.f$fromBase" $x $y $fromBase
-      }
-    } else {
-      ::file::SwitchToBase $toBase
-    }
+    ::file::SwitchToBase $toBase
   } else {
-    set glist ""
-    if { [info exists ::sw_LinkedGList_($w)] } { set glist $::sw_LinkedGList_($w) }
-    ::windows::gamelist::CopyGames $glist $fromBase $toBase
+    ::windows::gamelist::CopyGames "" $fromBase $toBase
   }
 }
 
@@ -609,11 +598,6 @@ proc ::windows::switcher::popupmenu { {switcherWin} {w} {abs_x} {abs_y} {baseIdx
   $w.menu add command -label [tr FileOpen] -command ::file::Open
   if {![sc_base isReadOnly $baseIdx]} {
     $w.menu add command -label [tr ToolsImportFile] -command "importPgnFile $baseIdx"
-  }
-  if { [info exists ::sw_LinkedGList_($switcherWin)] && \
-       [::windows::gamelist::GetBase $::sw_LinkedGList_($switcherWin)] == "$baseIdx"} {
-    $w.menu add command -label "[tr ToolsExpFilter]" -command \
-        "::windows::gamelist::FilterExport $::sw_LinkedGList_($switcherWin)"
   }
   if { $baseIdx != $::clipbase_db } {
     $w.menu add command -label [tr FileClose] -command [list ::file::Close $baseIdx]
@@ -660,13 +644,7 @@ proc ::windows::switcher::Open {{w .baseWin}} {
   ::createToplevelFinalize $w
 }
 
-proc ::windows::switcher::Create {{w} {gamelist ""}} {
-  if {$gamelist == ""} {
-    catch { unset ::sw_LinkedGList_($w) }
-  } else {
-    set ::sw_LinkedGList_($w) $gamelist
-  }
-
+proc ::windows::switcher::Create {{w}} {
   ttk::frame $w.border
   grid $w.border -sticky news
   grid rowconfigure $w 0 -weight 1
@@ -731,11 +709,7 @@ proc ::windows::switcher::calcSpace {{w} {selected}} {
       }
       set name [::file::BaseName $i]
       $w.c.f$i.name configure -background $color -text $name
-      if {[info exists ::sw_LinkedGList_($w)]} {
-        set txt [::windows::gamelist::filterText $::sw_LinkedGList_($w) $i]
-      } else {
-        set txt [::windows::gamelist::filterText "" $i]
-      }
+      set txt [::windows::gamelist::filterText "" $i]
       $w.c.f$i.ngames configure -background $color -text "$txt"
       $w.c itemconfigure tag$i -state normal
   }
@@ -779,34 +753,17 @@ proc ::windows::switcher::Refresh {} {
 }
 
 proc ::windows::switcher::Update_ {w} {
-  if {[info exists ::sw_LinkedGList_($w)]} {
-    set curr_base [::windows::gamelist::GetBase $::sw_LinkedGList_($w)]
-  } else {
-    set curr_base [sc_base current]
-    if {![sc_base inUse $curr_base]} { return }
-  }
-
+  set curr_base $::curr_db
   set space [::windows::switcher::calcSpace $w $curr_base]
   set n_bases [lindex $space 0]
   set iconWidth [lindex $space 1]
   set iconHeight [lindex $space 2]
 
-  if {! [info exists ::sw_LinkedGList_($w)]} {
-    set canvasWidth [winfo width $w.c]
-    set numColumns [expr {int($canvasWidth / $iconWidth)}]
-    if {$numColumns < 1} { set numColumns 1 }
-    ::windows::switcher::Draw $w $numColumns $iconWidth $iconHeight
-    set status [file nativename [sc_base filename $curr_base ] ]
-    if {[sc_base isReadOnly $curr_base]} { append status " ($::tr(readonly))" }
-    $w.status configure -text $status
-  } else {
-    #TODO: if $w parent is too small do not use 2 columns
-    if {[winfo height $w.c] < [expr $iconHeight * ($n_bases)]} {
-      $w.c configure -width [expr $iconWidth * 2]
-      ::windows::switcher::Draw $w 2 $iconWidth $iconHeight
-    } else {
-      $w.c configure -width $iconWidth
-	  ::windows::switcher::Draw $w 1 $iconWidth $iconHeight
-    }
-  }
+  set canvasWidth [winfo width $w.c]
+  set numColumns [expr {int($canvasWidth / $iconWidth)}]
+  if {$numColumns < 1} { set numColumns 1 }
+  ::windows::switcher::Draw $w $numColumns $iconWidth $iconHeight
+  set status [file nativename [sc_base filename $curr_base ] ]
+  if {[sc_base isReadOnly $curr_base]} { append status " ($::tr(readonly))" }
+  $w.status configure -text $status
 }
