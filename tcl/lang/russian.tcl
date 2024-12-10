@@ -1645,6 +1645,8 @@ translate R DockBottom {Двигаться вниз}
 translate R DockLeft {Двигаться влево}
 translate R DockRight {Двигаться вправо}
 translate R Undock {Расстыковать}
+# ====== TODO To be translated ======
+translate R AboutDatabase {About This Database}
 
 # Switcher window
 translate R ChangeIcon {Сменить иконку...}

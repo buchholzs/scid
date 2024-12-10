@@ -1680,6 +1680,8 @@ translate U DockBottom {Siirrä alimmaksi}
 translate U DockLeft {Siirrä vasemmalle}
 translate U DockRight {Siirrä oikealle}
 translate U Undock {Vapauta lukitus}
+# ====== TODO To be translated ======
+translate U AboutDatabase {About This Database}
 
 # Switcher window
 translate U ChangeIcon {Vaihda kuvake...}

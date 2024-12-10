@@ -1635,6 +1635,7 @@ translate E DockRight {Move to right}
 translate E Undock {Undock}
 
 # Switcher window
+translate E AboutDatabase {About This Database}
 translate E ChangeIcon {Choose database icon...}
 translate E NewGameListWindow {New Game List Window}
 translate E LoadatStartup {Load at startup}

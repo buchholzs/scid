@@ -1693,6 +1693,8 @@ translate S DockBottom {Mover abajo}
 translate S DockLeft {Mover a la izquierda}
 translate S DockRight {Mover a la derecha}
 translate S Undock {Ventana flotante}
+# ====== TODO To be translated ======
+translate S AboutDatabase {About This Database}
 translate S ChangeIcon {Cambiar icono...}
 # ====== TODO To be translated ======
 translate S NewGameListWindow {New Game List Window}

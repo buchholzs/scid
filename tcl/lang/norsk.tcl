@@ -2079,6 +2079,8 @@ translate O DockRight {Move to right}
 # ====== TODO To be translated ======
 translate O Undock {Undock}
 # ====== TODO To be translated ======
+translate O AboutDatabase {About This Database}
+# ====== TODO To be translated ======
 translate O ChangeIcon {Change icon...}
 # ====== TODO To be translated ======
 translate O NewGameListWindow {New Game List Window}

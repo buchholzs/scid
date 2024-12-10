@@ -480,11 +480,7 @@ JZCYasm01FZrrSUGIKTAttwu4O234Ia7AAMAMGTuueieGxAAOw==
 
 variable ::windows::switcher::base_types {}
 
-#TODO: remove the no-icons option
-::options.store ::windows::switcher::icons 1
-
 # Initialise icons nicely
-
 set i 0
 foreach {icon data} $icons {
   lappend ::windows::switcher::base_types $icon
@@ -611,14 +607,25 @@ proc ::windows::switcher::popupmenu { {switcherWin} {w} {abs_x} {abs_y} {baseIdx
       $w.menu add checkbutton -label "[tr LoadatStartup]" -variable ::sw_DummyCheckbutton \
         -command "::file::autoLoadBases.remove $baseIdx"
     }
+    $w.menu add command -label [tr AboutDatabase] -command [list apply {{base} {
+      set name [file nativename [sc_base filename $base]]
+      lassign [sc_base stats $base dates] y_min y_max y_mean
+      lassign [sc_base stats $base ratings] r_min r_max r_mean
+      lassign [sc_base stats $base results] w d b no
+      if {[sc_base isReadOnly $base]} { append msg "\n[tr readonly]" }
+      append msg "\n[tr YearRange] $y_min-$y_max ($y_mean)"
+      append msg "\n[tr RatingRange] $r_min-$r_max ($r_mean)"
+      append msg "\n[tr OprepWWins] $w"
+      append msg "\n[tr OprepDraws] $d"
+      append msg "\n[tr OprepBWins] $b"
+      tk_messageBox -message $name -detail $msg -icon info
+    }} $baseIdx]
   } else {
     $w.menu add command -label [tr EditReset] -command ::windows::gamelist::ClearClipbase
   }
 
   $w.menu add separator
   $w.menu add command -label [tr ChangeIcon] -command "changeBaseType $baseIdx"
-  $w.menu add checkbutton -label "Icons" -variable ::windows::switcher::icons \
-    -command ::windows::switcher::Refresh
   tk_popup $w.menu $abs_x $abs_y
 }
 
@@ -627,21 +634,13 @@ set sw_nBases_ [sc_info limit bases]
 set ::windows::switcher::wins {}
 
 proc ::windows::switcher::Open {{w .baseWin}} {
-  if {[::createToplevel $w] == "already_exists"} {
-    focus .
-    destroy $w
-    set ::baseWin 0
-    return
+  if {! [::win::createWindow $w [tr WindowsSwitcher]]} {
+    return [::win::closeWindow $w]
   }
 
-  ::setTitle $w "Scid: [tr WindowsSwitcher]"
   ::windows::switcher::Create $w
-  bind $w <Escape> "focus .; destroy $w"
   bind $w <Destroy> "+ if {\[string equal $w %W\]} {set ::baseWin 0}"
   bind $w <F1> { helpWindow Switcher }
-  ttk::label $w.status -width 1 -anchor w -relief sunken -borderwidth 1
-  grid $w.status -columnspan 2 -sticky we
-  ::createToplevelFinalize $w
 }
 
 proc ::windows::switcher::Create {{w}} {
@@ -687,8 +686,6 @@ proc ::windows::switcher::Create {{w}} {
 
 proc ::windows::switcher::calcSpace {{w} {selected}} {
   global numBaseTypeIcons
-  variable icons
-  if {! [winfo exists $w]} { return }
 
   for {set i 1} {$i <= $::sw_nBases_} {incr i} {
       $w.c itemconfigure tag$i -state hidden
@@ -698,15 +695,10 @@ proc ::windows::switcher::calcSpace {{w} {selected}} {
       incr n_bases
       set color {}
       if {$i == $selected} { set color steelBlue }
-
-      if {$icons} {
-        set dbtype [getBaseType $i]
-        if {$dbtype < 0 || $dbtype >= $numBaseTypeIcons} { set dbtype 0 }
-        $w.c.f$i.img configure -image dbt$dbtype -background $color
-		grid $w.c.f$i.img -row 0 -column 0 -rowspan 2
-      } else {
-        grid forget $w.c.f$i.img
-      }
+      set dbtype [getBaseType $i]
+      if {$dbtype < 0 || $dbtype >= $numBaseTypeIcons} { set dbtype 0 }
+      $w.c.f$i.img configure -image dbt$dbtype -background $color
+      grid $w.c.f$i.img -row 0 -column 0 -rowspan 2
       set name [::file::BaseName $i]
       $w.c.f$i.name configure -background $color -text $name
       set txt [::windows::gamelist::filterText "" $i]
@@ -748,7 +740,7 @@ proc ::windows::switcher::Draw {{w} {numColumns} {iconWidth} {iconHeight} } {
 
 proc ::windows::switcher::Refresh {} {
   foreach w $::windows::switcher::wins {
-    if {[winfo exists $w]} { ::windows::switcher::Update_ $w }
+    ::windows::switcher::Update_ $w
   }
 }
 
@@ -763,7 +755,4 @@ proc ::windows::switcher::Update_ {w} {
   set numColumns [expr {int($canvasWidth / $iconWidth)}]
   if {$numColumns < 1} { set numColumns 1 }
   ::windows::switcher::Draw $w $numColumns $iconWidth $iconHeight
-  set status [file nativename [sc_base filename $curr_base ] ]
-  if {[sc_base isReadOnly $curr_base]} { append status " ($::tr(readonly))" }
-  $w.status configure -text $status
 }

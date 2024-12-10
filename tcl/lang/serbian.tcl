@@ -2083,6 +2083,8 @@ translate Y DockRight {Move to right}
 # ====== TODO To be translated ======
 translate Y Undock {Undock}
 # ====== TODO To be translated ======
+translate Y AboutDatabase {About This Database}
+# ====== TODO To be translated ======
 translate Y ChangeIcon {Change icon...}
 # ====== TODO To be translated ======
 translate Y NewGameListWindow {New Game List Window}

@@ -1639,6 +1639,8 @@ translate F DockBottom {Déplacer en bas}
 translate F DockLeft {Déplacer à gauche}
 translate F DockRight {Déplacer à droite}
 translate F Undock {Détacher}
+# ====== TODO To be translated ======
+translate F AboutDatabase {About This Database}
 translate F ChangeIcon {Changer l'icône...}
 translate F NewGameListWindow {Nouvelle fenêtre de liste de parties}
 translate F LoadatStartup {Charger au démarrage}

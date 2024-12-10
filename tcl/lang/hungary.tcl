@@ -1703,6 +1703,8 @@ translate H DockLeft {Mozgatás balra}
 translate H DockRight {Mozgatás jobbra}
 translate H Undock {Feloldás}
 # ====== TODO To be translated ======
+translate H AboutDatabase {About This Database}
+# ====== TODO To be translated ======
 translate H ChangeIcon {Change icon...}
 # ====== TODO To be translated ======
 translate H NewGameListWindow {New Game List Window}

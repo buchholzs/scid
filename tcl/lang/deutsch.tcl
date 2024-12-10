@@ -1642,6 +1642,8 @@ translate D DockBottom {Nach unten}
 translate D DockLeft {Nach links}
 translate D DockRight {Nach rechts}
 translate D Undock {Fenster lösen}
+# ====== TODO To be translated ======
+translate D AboutDatabase {About This Database}
 #Gamelist
 translate D ChangeIcon {Datenbank Icon ändern...}
 translate D NewGameListWindow {Neue Partieliste}

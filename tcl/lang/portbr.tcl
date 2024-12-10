@@ -1589,6 +1589,8 @@ translate B DockBottom {Mover para o final}
 translate B DockLeft {Mover para a esquerda}
 translate B DockRight {Mover para a direita}
 translate B Undock {Desacoplar}
+# ====== TODO To be translated ======
+translate B AboutDatabase {About This Database}
 translate B ChangeIcon {Alterar icone...}
 translate B NewGameListWindow {Lista de Novos Jogos}
 translate B LoadatStartup {Carregar ao inicializar}

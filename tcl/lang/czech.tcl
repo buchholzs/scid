@@ -1669,6 +1669,8 @@ translate C DockLeft {Pøesunout doleva}
 translate C DockRight {Pøesunout doprava}
 # ====== TODO To be translated ======
 translate C Undock {Undock}
+# ====== TODO To be translated ======
+translate C AboutDatabase {About This Database}
 translate C ChangeIcon {Zmìnit ikonu...}
 # ====== TODO To be translated ======
 translate C NewGameListWindow {New Game List Window}

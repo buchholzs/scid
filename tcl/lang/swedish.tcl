@@ -1619,6 +1619,8 @@ translate W DockBottom {Drag nederst}
 translate W DockLeft {Drag till vänster}
 translate W DockRight {Drag till höger}
 translate W Undock {Avdocka}
+# ====== TODO To be translated ======
+translate W AboutDatabase {About This Database}
 translate W ChangeIcon {Ändra ikon...}
 # ====== TODO To be translated ======
 translate W NewGameListWindow {New Game List Window}

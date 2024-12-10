@@ -1595,6 +1595,8 @@ translate K DockBottom {Moure abaix}
 translate K DockLeft {Moure a l'esquerra}
 translate K DockRight {Moure a la dreta}
 translate K Undock {Finestra flotant}
+# ====== TODO To be translated ======
+translate K AboutDatabase {About This Database}
 translate K ChangeIcon {Canvia d'icona...}
 translate K NewGameListWindow {Finestra de llista de noves partides}
 translate K LoadatStartup {Carrega al engegar}

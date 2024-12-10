@@ -1599,6 +1599,7 @@ translate I DockBottom {Sposta in basso}
 translate I DockLeft {Sposta a sinistra}
 translate I DockRight {Sposta a destra}
 translate I Undock {Sgancia}
+translate I AboutDatabase {Informazioni}
 translate I ChangeIcon {Cambia icona...}
 # ====== TODO To be translated ======
 translate I NewGameListWindow {New Game List Window}

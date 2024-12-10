@@ -1806,6 +1806,8 @@ translate N DockBottom {Zend naar laatste plaats}
 translate N DockLeft {Zend naar links}
 translate N DockRight {Zend naar rechts}
 translate N Undock {Undock}
+# ====== TODO To be translated ======
+translate N AboutDatabase {About This Database}
 translate N ChangeIcon {Verander ikoon...}
 # ====== TODO To be translated ======
 translate N NewGameListWindow {New Game List Window}
