@@ -43,7 +43,7 @@ proc remove {langfile enc tokens} {
   #split generates an additional "\n", delete this
   set langData [lreplace $langData end end]
 
-  set fnew [open $langfile.tcl.new w]
+  set fnew [open $langfile.tcl w]
   fconfigure $fnew -encoding $enc
   set removenext 0
   set removebrace 0
@@ -62,6 +62,9 @@ proc remove {langfile enc tokens} {
         if { [string index $line end] == "\\" } {
           set removenext 1
         }
+    } elseif { [regexp {^#.*TODO.*translate} $line] } {
+        set to_be_translated $line
+        continue
     } elseif { $command == "translate" || $command == "menuText" } {
         foreach token $tokenList {
             set found 0
@@ -71,6 +74,7 @@ proc remove {langfile enc tokens} {
             }
         }
         if { ! $found } {
+            if {[info exists to_be_translated]} { puts $fnew $to_be_translated }
             puts $fnew $line
         } else {
             if { [string index $line end] == "\\" } {
@@ -80,8 +84,10 @@ proc remove {langfile enc tokens} {
             }
         }
     } else {
+        if {[info exists to_be_translated]} { puts $fnew $to_be_translated }
         puts $fnew $line
     }
+    unset -nocomplain to_be_translated
   }
   close $fnew
 }
