@@ -185,33 +185,39 @@ proc ::enginewin::createDisplayFrame {id display} {
         }
     }
     $display.pv_lines tag bind moves <Motion> [list apply {{id} {
-        after cancel $::enginewin:::m_(afterId,$id)
-        %W tag remove markmove 1.0 end
-        if {[%W tag ranges sel] eq ""} {
-            # TODO:
-            # Using wordstart and wordend would be a lot more efficient.
-            # However they do not consider the [+.-] chars as part of the word.
-            # set movestart [%W index "@%x,%y wordstart"]
-            # %W tag add markmove $movestart "$movestart wordend"
-            set movestart "[%W search -backwards -regexp {\s} "@%x,%y"] +1chars"
-            %W tag add markmove $movestart [%W search " " $movestart]
-            set ::enginewin::m_(afterId,$id) [after 10 [list apply {{id w} {
-                lassign [$w tag nextrange markmove 1.0] index
-                if {$index eq ""} { return }
-                set moves [::enginewin::getMoves $w $index]
-                # An exception will be thrown if the engine sent an illegal pv
-                if {[catch {sc_pos board $::enginewin::m_(position,$id) $moves} pos]} {
-                    destroy .enginewinBoard
-                } else {
-                    lassign [$w bbox $index] x y width height
-                    set x [expr {$x + [winfo rootx $w] + $width}]
-                    incr y [winfo rooty $w]
-                    ::board::popup .enginewinBoard $pos $x $y $height
-                }
-            }} $id %W]]
-        } else {
+        set old_markmove [%W tag nextrange markmove 1.0]
+        if {[%W tag ranges sel] ne ""} {
             destroy .enginewinBoard
+            if {$old_markmove ne ""} { %W tag remove markmove {*}$old_markmove }
+            return
         }
+        # TODO:
+        # Using wordstart and wordend would be a lot more efficient.
+        # However they do not consider the [+.-] chars as part of the word.
+        # set movestart [%W index "@%x,%y wordstart"]
+        # %W tag add markmove $movestart "$movestart wordend"
+        set movestart "[%W search -backwards -regexp {\s} "@%x,%y"] +1chars"
+        set new_markmove [list [%W index $movestart] [%W search " " $movestart]]
+        if {$new_markmove eq $old_markmove} { return }
+
+        if {$old_markmove ne ""} { %W tag remove markmove {*}$old_markmove }
+        %W tag add markmove {*}$new_markmove
+        after cancel $::enginewin:::m_(afterId,$id)
+        set ::enginewin::m_(afterId,$id) [after 10 [list apply {{id w} {
+            # An exception will be thrown if the engine sent an illegal pv,
+            # the tag was removed, the text widget is destroyed or not visible
+            if {[catch {
+                lassign [$w tag nextrange markmove 1.0] index
+                set moves [::enginewin::getMoves $w $index]
+                set pos [sc_pos board $::enginewin::m_(position,$id) $moves]
+                lassign [$w bbox $index] x y width height
+                set x [expr {$x + [winfo rootx $w] + $width}]
+                incr y [winfo rooty $w]
+                ::board::popup .enginewinBoard $pos $x $y $height
+            }]} {
+                destroy .enginewinBoard
+            }
+        }} $id %W]]
     }} $id]
     $display.pv_lines tag bind moves <Any-Leave> {
         %W tag remove markmove 1.0 end
