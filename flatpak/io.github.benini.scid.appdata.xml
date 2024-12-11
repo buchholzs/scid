@@ -5,6 +5,9 @@
   <project_license>GPL-2.0</project_license>
   <name>SCID</name>
   <summary>A chess database application</summary>
+  <developer id="io.github.benini">
+     <name>SCID</name>
+  </developer>
 
   <description>
     <p>
