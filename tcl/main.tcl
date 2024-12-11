@@ -1270,6 +1270,9 @@ proc CreateMainBoard { {w} } {
   bind $w <Configure> {+::resizeMainBoard }
 
   bindMouseWheel $w "main_mousewheelHandler"
+  foreach e "$w.board $w.board.bd $w.board.bar" {
+    bindtags $e [linsert [bindtags $e] 2 $w]
+  }
 
   ttk::frame $w.space
   grid $w.space -row 4 -column 0 -columnspan 3 -sticky nsew
