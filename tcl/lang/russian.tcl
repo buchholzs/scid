@@ -1678,7 +1678,11 @@ translate R BackToMainline {Вернуться к основной линии}
 translate R LeaveVariant {Покинуть вариант}
 translate R Autoplay {Автоходы}
 translate R ShowHideCoords {Показать координаты}
+# ====== TODO To be translated ======
+translate R ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate R ShowHideMaterial {Показать материал}
+# ====== TODO To be translated ======
+translate R SelectMarker {Select Marker}
 translate R FullScreen {На весь экран}
 translate R FilterStatistic {Статистика фильтра}
 translate R MakeCorrections {Внести исправления}

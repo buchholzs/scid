@@ -1620,7 +1620,11 @@ translate B BackToMainline {Voltar para linha principal}
 translate B LeaveVariant {Deixar variante}
 translate B Autoplay {Jogo automatico}
 translate B ShowHideCoords {Exibir/Ocultar Coord.}
+# ====== TODO To be translated ======
+translate B ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate B ShowHideMaterial {Exibir/Ocultar Material}
+# ====== TODO To be translated ======
+translate B SelectMarker {Select Marker}
 translate B FullScreen {Tela Cheia}
 translate B FilterStatistic {Estatisticas de Filtro}
 translate B MakeCorrections {Fazer Correcoes}

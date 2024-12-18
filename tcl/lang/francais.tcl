@@ -1670,7 +1670,11 @@ translate F BackToMainline {Revenir à la ligne principale}
 translate F LeaveVariant {Quitter la variante}
 translate F Autoplay {Jeu automatique}
 translate F ShowHideCoords {Afficher/Masquer Coord.}
+# ====== TODO To be translated ======
+translate F ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate F ShowHideMaterial {Afficher/Masquer matériel}
+# ====== TODO To be translated ======
+translate F SelectMarker {Select Marker}
 translate F FullScreen {Plein écran}
 # ====== TODO To be translated ======
 translate F FilterStatistic {Filter Statistics}

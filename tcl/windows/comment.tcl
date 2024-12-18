@@ -80,17 +80,6 @@ namespace eval ::windows::commenteditor {
 		}
 		notify_ 1500
 	}
-
-	proc updateMarkersCol_ {varname args} {
-		variable w_
-		if {![winfo exists $w_.mf]} { return }
-
-		foreach b [winfo children $w_.mf.markers] {
-			$b configure -foreground $::markColor
-		}
-	}
-	trace add variable ::markColor write "::windows::commenteditor::updateMarkersCol_"
-
 }
 
 proc ::windows::commenteditor::createWin { {focus_if_exists 1} } {
@@ -154,80 +143,9 @@ proc ::windows::commenteditor::createWin { {focus_if_exists 1} } {
 	grid $w_.cf.label $w_.cf.clear -sticky nsew
 	grid $w_.cf.txtframe -sticky nsew -columnspan 2
 
-	### Markers frame
-	ttk::frame $w_.mf
-	ttk::label $w_.mf.header -font font_Bold -text $::tr(InsertMark:)
-	set usage "Usage (on the main board):\n"
-	append usage "ctrl+click --> mark square\n"
-	append usage "ctrl+drag --> draw arrow"
-	ttk::label $w_.mf.usage -text "$usage"
-	ttk::frame $w_.mf.colors
-	set i 0
-	foreach color {
-		green
-		red
-		orange
-		yellow
-		blue
-		darkBlue
-		purple
-		white
-		black
-		gray
-	} {
-		radiobutton $w_.mf.colors.col_$color \
-			-indicatoron "false" \
-			-background "$color" -selectcolor "$color" \
-			-text " " -width 2 \
-			-variable "::markColor" -value "$color"
-		grid $w_.mf.colors.col_$color -row [expr {$i / 2}] -column [expr {int($i % 2)}]
-		incr i
-	}
-	ttk::frame $w_.mf.markers
-	set i 0
-	foreach {marker lbl} {
-		full █
-		circle ◯
-		disk ⬤
-		+ +
-		- -
-		X X
-		! !
-		? ?
-		= =
-		A A
-		B B
-		C C
-		D D
-		E E
-		F F
-		0 0
-		1 1
-		2 2
-		3 3
-		4 4
-		5 5
-		6 6
-		7 7
-		8 8
-		9 9
-	} {
-		radiobutton $w_.mf.markers.mark_$marker \
-			-indicatoron "false" \
-			-foreground "$::markColor" -background "light gray" -selectcolor "dark gray" \
-			-text "$lbl" -width 2 \
-			-variable "::markType" -value "$marker"
-		grid $w_.mf.markers.mark_$marker -row [expr {$i % 5}] -column [expr {int($i / 5)}]
-		incr i
-	}
-	grid $w_.mf.header -columnspan 2 -sticky nsew -padx 8
-	grid $w_.mf.usage -columnspan 2 -sticky nsew -padx 8
-	grid $w_.mf.colors -row 2 -column 0 -sticky nsew -padx 8 -pady 8
-	grid $w_.mf.markers -row 2 -column 1 -sticky nsew -pady 8 -padx 8
 
 	# Arrange frames:
 	grid $w_.cf -row 0 -column 0 -columnspan 2 -sticky nsew
-	grid $w_.mf -row 0 -rowspan 2 -column 2 -sticky nsew
 	grid $w_.nf -row 1 -column 0 -columnspan 2 -sticky nsew
 	grid rowconfig $w_ 0 -weight 1
 	grid columnconfig $w_ 0 -weight 1

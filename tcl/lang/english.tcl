@@ -1668,7 +1668,9 @@ translate E BackToMainline {Go back to mainline}
 translate E LeaveVariant {Leave variant}
 translate E Autoplay {Autoplay}
 translate E ShowHideCoords {Show/Hide Coord.}
+translate E ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate E ShowHideMaterial {Show/Hide Material}
+translate E SelectMarker {Select Marker}
 translate E FullScreen {Full Screen}
 translate E FilterStatistic {Filter Statistics}
 translate E MakeCorrections {Make Corrections}

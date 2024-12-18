@@ -1626,7 +1626,11 @@ translate K BackToMainline {Ves a la línia principal}
 translate K LeaveVariant {Surt de la variant}
 translate K Autoplay {Juga automàticament}
 translate K ShowHideCoords {Mostra/amaga coordenades}
+# ====== TODO To be translated ======
+translate K ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate K ShowHideMaterial {Mostra/amaga material}
+# ====== TODO To be translated ======
+translate K SelectMarker {Select Marker}
 translate K FullScreen {Pantalla completa}
 translate K FilterStatistic {Filtra estadístiques}
 translate K MakeCorrections {Fes correccions}

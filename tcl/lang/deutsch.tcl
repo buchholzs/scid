@@ -1675,7 +1675,11 @@ translate D BackToMainline {Zurück zur Hauptvariante}
 translate D LeaveVariant {Variante verlassen}
 translate D Autoplay {Vorspielen}
 translate D ShowHideCoords {Beschriftung ein/aus}
+# ====== TODO To be translated ======
+translate D ShowHideEvalBar {Show/Hide Evaluation Bar}
 translate D ShowHideMaterial {Material ein/aus}
+# ====== TODO To be translated ======
+translate D SelectMarker {Select Marker}
 translate D FullScreen {Vollbild}
 translate D FilterStatistic {Filter Statistik}
 translate D MakeCorrections {Korrigieren}

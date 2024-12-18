@@ -2139,7 +2139,11 @@ translate O Autoplay {Autoplay}
 # ====== TODO To be translated ======
 translate O ShowHideCoords {Show/Hide Coord.}
 # ====== TODO To be translated ======
+translate O ShowHideEvalBar {Show/Hide Evaluation Bar}
+# ====== TODO To be translated ======
 translate O ShowHideMaterial {Show/Hide Material}
+# ====== TODO To be translated ======
+translate O SelectMarker {Select Marker}
 # ====== TODO To be translated ======
 translate O FullScreen {Full Screen}
 # ====== TODO To be translated ======

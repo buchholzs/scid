@@ -2151,7 +2151,11 @@ translate P Autoplay {Autoplay}
 # ====== TODO To be translated ======
 translate P ShowHideCoords {Show/Hide Coord.}
 # ====== TODO To be translated ======
+translate P ShowHideEvalBar {Show/Hide Evaluation Bar}
+# ====== TODO To be translated ======
 translate P ShowHideMaterial {Show/Hide Material}
+# ====== TODO To be translated ======
+translate P SelectMarker {Select Marker}
 # ====== TODO To be translated ======
 translate P FullScreen {Full Screen}
 # ====== TODO To be translated ======

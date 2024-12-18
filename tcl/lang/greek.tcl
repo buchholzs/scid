@@ -1779,7 +1779,11 @@ translate G Autoplay {Autoplay}
 # ====== TODO To be translated ======
 translate G ShowHideCoords {Show/Hide Coord.}
 # ====== TODO To be translated ======
+translate G ShowHideEvalBar {Show/Hide Evaluation Bar}
+# ====== TODO To be translated ======
 translate G ShowHideMaterial {Show/Hide Material}
+# ====== TODO To be translated ======
+translate G SelectMarker {Select Marker}
 # ====== TODO To be translated ======
 translate G FullScreen {Full Screen}
 # ====== TODO To be translated ======

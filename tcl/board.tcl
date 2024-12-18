@@ -742,9 +742,9 @@ proc ::board::newToolBar_ {{w} {varname}} {
   set m [menu $w.menu]
   $m add command -label "  [tr EditSetup]" -image tb_BD_SetupBoard -compound left
   $m add command -label "  [tr IERotate]" -image tb_BD_Flip -compound left
+  $m add command -label "  [tr SelectMarker]" -image tb_BD_SelectMarker -compound left
   $m add command -label "  [tr ShowHideMaterial]" -image tb_BD_Material -compound left
-  #TODO translate
-  $m add command -label "  Show/Hide Evaluation Bar" -image tb_BD_Scorebar -compound left
+  $m add command -label "  [tr ShowHideEvalBar]" -image tb_BD_Scorebar -compound left
   $m add command -label "  [tr ConfigureScid]" -image tb_BD_Layout -compound left
 
   set ${varname}(tb_BD_Flip) "::board::flip $w"

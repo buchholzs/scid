@@ -297,6 +297,7 @@ proc updateMainToolbar {} {
   }
 
   set ::gameInfoBar(tb_BD_SetupBoard) "setupBoard"
+  set ::gameInfoBar(tb_BD_SelectMarker) "::selectMarker"
 }
 
 # Update the "tree" filter of databases that have a view (gamelist or tree windows)
@@ -1142,6 +1143,92 @@ proc addMarker {w x y} {
 
     sc_pos setComment $newComment
     ::notify::PosChanged pgnonly
+}
+
+proc selectMarker {} {
+    set w_ .mainSelectMarker
+    toplevel $w_
+    if {! $::macOS } {
+        wm attributes $w_ -topmost 1
+    } else {
+        # On macOS, TK 8.6.16, the mouse events are weird.
+        # Right-clicks are sent to this window, even if they happens outside.
+        # With "wm overrideredirect $w_ 1" the <Leave> message is not sent.
+        bind $w_ <Leave> {
+            if {[string last . %W] == 0 &&
+                [string first %W [winfo containing %X %Y]] != 0} {
+                destroy %W
+            }
+        }
+    }
+    lassign [winfo pointerxy .] x y
+    set x [expr {max(0, $x - 20)}]
+    set y [expr {max(0, $y - 40)}]
+    wm geometry $w_ "+$x+$y"
+
+    ttk::frame $w_.markers
+    set i 0
+    foreach {marker lbl} {
+        full █
+        circle ◯
+        disk ⬤
+        + +
+        - -
+        X X
+        ! !
+        ? ?
+        = =
+        A A
+        B B
+        C C
+        D D
+        E E
+        F F
+        0 0
+        1 1
+        2 2
+        3 3
+        4 4
+        5 5
+        6 6
+        7 7
+        8 8
+        9 9
+    } {
+        radiobutton $w_.markers.mark_$marker \
+            -indicatoron "false" \
+            -foreground "$::markColor" -background "light gray" -selectcolor "dark gray" \
+            -text "$lbl" -width 2 \
+            -variable "::markType" -value "$marker"
+        grid $w_.markers.mark_$marker -row [expr {$i % 5}] -column [expr {int($i / 5)}]
+        incr i
+    }
+    ttk::frame $w_.colors
+    set i 0
+    foreach color {
+        green
+        red
+        orange
+        yellow
+        blue
+        darkBlue
+        purple
+        white
+        black
+        gray
+    } {
+        radiobutton $w_.colors.col_$color \
+            -indicatoron "false" \
+            -background "$color" -selectcolor "$color" \
+            -text " " -width 2 \
+            -variable "::markColor" -value "$color" \
+            -command [list apply {{btns} {
+                foreach b $btns { $b configure -foreground $::markColor }
+            }} [winfo children $w_.markers] ]
+        grid $w_.colors.col_$color -row [expr {$i / 2}] -column [expr {int($i % 2)}]
+        incr i
+    }
+    grid $w_.colors $w_.markers -sticky nsew -pady 12 -padx 12
 }
 
 # addNag:

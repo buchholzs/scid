@@ -1655,10 +1655,10 @@ translate I BackToMainline {Go back to mainline}
 translate I LeaveVariant {Leave variant}
 # ====== TODO To be translated ======
 translate I Autoplay {Autoplay}
-# ====== TODO To be translated ======
-translate I ShowHideCoords {Show/Hide Coord.}
-# ====== TODO To be translated ======
-translate I ShowHideMaterial {Show/Hide Material}
+translate I ShowHideCoords {Mostra/Nascondi Coordinate}
+translate I ShowHideEvalBar {Mostra/Nascondi Barra Valutazione}
+translate I ShowHideMaterial {Mostra/Nascondi Differenza Pezzi}
+translate I SelectMarker {Scegli il Marker}
 # ====== TODO To be translated ======
 translate I FullScreen {Full Screen}
 # ====== TODO To be translated ======

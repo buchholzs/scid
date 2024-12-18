@@ -1729,7 +1729,11 @@ translate C Autoplay {Autoplay}
 # ====== TODO To be translated ======
 translate C ShowHideCoords {Show/Hide Coord.}
 # ====== TODO To be translated ======
+translate C ShowHideEvalBar {Show/Hide Evaluation Bar}
+# ====== TODO To be translated ======
 translate C ShowHideMaterial {Show/Hide Material}
+# ====== TODO To be translated ======
+translate C SelectMarker {Select Marker}
 # ====== TODO To be translated ======
 translate C FullScreen {Full Screen}
 # ====== TODO To be translated ======

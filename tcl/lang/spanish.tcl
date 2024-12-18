@@ -1753,7 +1753,11 @@ translate S Autoplay {Autoplay}
 # ====== TODO To be translated ======
 translate S ShowHideCoords {Show/Hide Coord.}
 # ====== TODO To be translated ======
+translate S ShowHideEvalBar {Show/Hide Evaluation Bar}
+# ====== TODO To be translated ======
 translate S ShowHideMaterial {Show/Hide Material}
+# ====== TODO To be translated ======
+translate S SelectMarker {Select Marker}
 # ====== TODO To be translated ======
 translate S FullScreen {Full Screen}
 # ====== TODO To be translated ======
