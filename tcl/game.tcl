@@ -340,7 +340,7 @@ namespace eval ::notify {
       # the old position. Send now the new position to avoid that.
       if {$pgn eq "newgame"} {
         foreach wnd [::win::getWindows] {
-          event generate $wnd <<NewGame>>
+          event generate $wnd <<NotifyNewGame>>
         }
       }
       ::enginewin::onPosChanged

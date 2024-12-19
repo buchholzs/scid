@@ -140,7 +140,7 @@ proc ::enginewin::Open { {id ""} {enginename ""} } {
     grid rowconfigure $w 2 -weight 0
     grid columnconfigure $w 0 -weight 1
 
-    bind $w <<NewGame>> "set ::enginewin::newgame_$id true"
+    bind $w <<NotifyNewGame>> "set ::enginewin::newgame_$id true"
 
     # The engine should be closed before the debug .text is destroyed
     bind $w.config <Destroy> "
