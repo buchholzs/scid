@@ -763,10 +763,8 @@ tools/fics.tcl
 tools/opening.tcl
 tools/tactics.tcl
 tools/reviewgame.tcl
-utils/metadata.tcl
 tools/inputengine.tcl
 tools/novag.tcl
-utils/bibliography.tcl
 }
 
 foreach f $tcl_files {
