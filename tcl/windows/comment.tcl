@@ -104,27 +104,27 @@ proc ::windows::commenteditor::createWin { {focus_if_exists 1} } {
 	set i 0
 	foreach {nag description} {
 		!! ExcellentMove
-		?? Blunder
 		! GoodMove
-		? PoorMove
 		!? InterestingMove
 		?! DubiousMove
-		+-- WhiteCrushing
-		--+ BlackCrushing
-		+- WhiteDecisiveAdvantage
-		-+ BlackDecisiveAdvantage
-		+/- WhiteClearAdvantage
-		-/+ BlackClearAdvantage
-		+= WhiteSlightAdvantage
-		=+ BlackSlightAdvantage
-		= Equality
-		~ Unclear
+		? PoorMove
+		?? Blunder
 		N Novelty
+		+-- WhiteCrushing
+		+- WhiteDecisiveAdvantage
+		+/- WhiteClearAdvantage
+		+= WhiteSlightAdvantage
+		= Equality
 		D Diagram
+		--+ BlackCrushing
+		-+ BlackDecisiveAdvantage
+		-/+ BlackClearAdvantage
+		=+ BlackSlightAdvantage
+		~ Unclear
 	} {
 		ttk::button $w_.nf.b.b$i -text "$nag" -width 3 -command "::addNag $nag"
 		::utils::tooltip::Set $w_.nf.b.b$i [tr $description]
-		grid $w_.nf.b.b$i -row [expr {$i % 2}] -column [expr {int($i / 2)}] -padx 2 -pady 2
+		grid $w_.nf.b.b$i -column [expr {$i % 6}] -row [expr {int($i / 6)}] -padx 1 -pady 1
 		incr i
 	}
 	grid columnconfig $w_.nf 0 -weight 1
