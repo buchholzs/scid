@@ -32,7 +32,7 @@ proc ::preport::preportDlg {args} {
   if {[llength $args] >= 2} {
     set ::preport::_color [lindex $args 1]
   }
-  
+
   set w .preportDlg
   if {[winfo exists $w]} { return }
   win::createDialog $w
@@ -85,7 +85,7 @@ proc ::preport::preportDlg {args} {
   if {$blackName == ""  ||  $blackName == "?"} {
     $w.b2.black configure -state disabled
   }
-  
+
   dialogbutton $w.b.help -text $::tr(Help) \
       -command {helpWindow Reports Player}
   dialogbutton $w.b.ok -text OK \
@@ -125,7 +125,7 @@ proc ::preport::ConfigMenus {{lang ""}} {
   foreach idx {0 1} tag {Report Index} {
     configMenuText $m.helpmenu $idx OprepHelp$tag $lang
   }
-  
+
 }
 
 proc ::preport::makeReportWin {args} {
@@ -138,7 +138,7 @@ proc ::preport::makeReportWin {args} {
     wm withdraw $w
     wm title $w "Scid: [tr ToolsPlayerReport]"
     bind $w <Visibility> "raiseWin $w"
-    
+
     pack [ttk::frame $w.b] -side bottom -fill x
     set ::preport::_interrupt 0
     ttk::button $w.b.cancel -text $::tr(Cancel) -command {
@@ -146,7 +146,7 @@ proc ::preport::makeReportWin {args} {
       progressBarCancel
     }
     pack $w.b.cancel -side right -pady 5 -padx 2
-    
+
     foreach i {1 2 3} name {"Searching database for report games"
       "Searching current board" "Generating report information"} {
       ttk::label $w.text$i -text "$i. $name"
@@ -180,9 +180,9 @@ proc ::preport::makeReportWin {args} {
     }
     progressBarSet $w.c2 401 21
   }
-  
+
   ::utils::history::AddEntry ::preport::_player $::preport::_player
-  
+
   if {$::preport::_pos == "start"} { sc_game push }
   sc_search board AND Exact false 0
   if {$showProgress} {
@@ -208,9 +208,9 @@ proc ::preport::makeReportWin {args} {
     if {$::preport::_interrupt} { return }
   }
   set report [::preport::report ctext 1]
-  
+
   if {[lsearch -exact $args "-nodisplay"] >= 0} { return }
-  
+
   set w .preportWin
   if {![winfo exists $w]} {
     toplevel $w
@@ -238,7 +238,7 @@ proc ::preport::makeReportWin {args} {
         -accelerator F1 -command {helpWindow Reports Player}
     $w.menu.helpmenu add command -label "Index" \
         -command {helpWindow Index}
-    
+
     bind $w <F1> {helpWindow Reports Player}
     bind $w <Escape> "$w.b.close invoke"
     bind $w <Up> "$w.text yview scroll -1 units"
@@ -269,7 +269,7 @@ proc ::preport::makeReportWin {args} {
     pack $w.b.opts -side left -padx 2 -pady 2
     ::preport::ConfigMenus
   }
-  
+
   busyCursor .
   $w.text configure -state normal
   $w.text delete 1.0 end
@@ -278,7 +278,7 @@ proc ::preport::makeReportWin {args} {
   $w.text configure -state disabled
   unbusyCursor .
 
-  ::notify::DatabaseModified $::curr_db dbfilter
+  ::notify::filter $::curr_db dbfilter
 }
 
 
@@ -385,11 +385,11 @@ proc ::preport::saveReport {fmt} {
       { "All files"  {"*"}    }
     }
   }
-  
+
   set fname [tk_getSaveFile -initialdir [pwd] -filetypes $ftype \
       -defaultextension $default -title "Scid: Save opening report"]
   if {$fname == ""} { return }
-  
+
   busyCursor .
   if {[catch {set tempfile [open $fname w]}]} {
     tk_messageBox -title "Scid: Error writing report" -type ok -icon warning \
@@ -463,16 +463,16 @@ proc ::preport::report {fmt {withTable 1}} {
   set fmt [string tolower $fmt]
   set ::preport::_data(fmt) $fmt
   ::preport::_reset
-  
+
   # numRows: the number of rows to show in the theory table.
   # If it is zero, the number of rows if decided according to the
   # number of games in the report.
   set numRows 0
-  
+
   # Specify whether a theory table is to be printed, so note numbers
   # can be generated and displayed if necessary:
   sc_report player notes $withTable $numRows
-  
+
   set n "\n"; set p "\n\n"; set preText ""; set postText ""
   set percent "%"; set bullet "  * "
   if {$fmt == "latex"} {
@@ -486,14 +486,14 @@ proc ::preport::report {fmt {withTable 1}} {
   } elseif {$fmt == "ctext"} {
     set preText "<tt>"; set postText "</tt>"
   }
-  
+
   # Generate the report:
   set games $tr(games)
   set moves $tr(moves)
   set counts [sc_report player count]
   set rgames [lindex $counts 0]
   set tgames [lindex $counts 1]
-  
+
   set r {}
   append r $::optable::_docStart($fmt)
   set r [string map [list "\[OprepTitle\]" $tr(PReportTitle)] $r]
@@ -511,7 +511,7 @@ proc ::preport::report {fmt {withTable 1}} {
   }
   append r " ("
   if {$fmt == "ctext"} {
-    append r "<darkblue><run sc_report player select all 0; ::notify::DatabaseModified $::curr_db dbfilter>"
+    append r "<darkblue><run sc_report player select all 0; ::notify::filter $::curr_db dbfilter>"
   }
   append r "$rgames"
   if {$fmt == "ctext"} { append r "</run></darkblue>"; }
@@ -522,7 +522,7 @@ proc ::preport::report {fmt {withTable 1}} {
     append r "$tr(ECO): $eco$n"
   }
   append r "$::tr(OprepGenerated) Scid $::scidVersion, [::utils::date::today]$n"
-  
+
   if {$preport(Stats)  ||  $preport(Oldest) > 0  ||  $preport(Newest) > 0  ||
     $preport(MostFrequentOpponents) > 0  ||  $preport(Results)} {
     append r [::preport::_sec $tr(OprepStatsHist)]
@@ -551,7 +551,7 @@ proc ::preport::report {fmt {withTable 1}} {
     append r [::preport::_subsec $::tr(OprepResults)]
     append r [::optable::results player $fmt]
   }
-  
+
   if {$preport(AvgPerf)  ||  $preport(HighRating)} {
     append r [::preport::_sec $tr(OprepRatingsPerf)]
   }
@@ -572,7 +572,7 @@ proc ::preport::report {fmt {withTable 1}} {
     append r [::preport::_subsec $tr(OprepHighRating)]
     append r [sc_report player best a $preport(HighRating)]
   }
-  
+
   if {$preport(Themes)  ||  $preport(MostFrequentEcoCodes) > 0  ||
     $preport(Endgames)} {
     append r [::preport::_sec $tr(OprepMovesThemes)]
@@ -596,7 +596,7 @@ proc ::preport::report {fmt {withTable 1}} {
     append r "$tr(OprepEndClass:)$n"
     append r [sc_report player endmat]
   }
-  
+
   if {$withTable  &&  $::preport(MaxGames) > 0} {
     set sec [::preport::_sec $tr(OprepTheoryTable)]
     set comment ""
@@ -606,10 +606,10 @@ proc ::preport::report {fmt {withTable 1}} {
     append r [sc_report player print $numRows $sec $comment]
   }
   append r $::optable::_docEnd($fmt)
-  
+
   # Eszet (ss) characters seem to be mishandled by LaTeX, even with
   # the font encoding package, so convert them explicitly:
   if {$fmt == "latex"} { regsub -all ß $r {{\\ss}} r }
-  
+
   return $r
 }

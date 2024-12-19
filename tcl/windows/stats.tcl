@@ -76,7 +76,7 @@ proc ::windows::stats::Open {} {
 
 # TODO: remove this function
 proc ::windows::stats::Refresh {} {
-  ::notify::DatabaseModified $::curr_db dbfilter
+  ::notify::filter $::curr_db dbfilter
 }
 
 proc ::windows::stats::refresh_wnd {} {

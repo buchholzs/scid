@@ -336,7 +336,7 @@ proc ::updateTreeFilter {{base ""}} {
             }
             return
         }
-        ::notify::DatabaseModified $base tree
+        ::notify::filter $base tree
     }
     unset ::treeFilterUpdating_
 }

@@ -242,7 +242,7 @@ proc ::crosstab::AddToFilter {} {
   sc_base switch $::crosstab::dbase_
   sc_game crosstable filter
   sc_base switch $curr_base
-  ::notify::DatabaseModified $::crosstab::dbase_ dbfilter
+  ::notify::filter $::crosstab::dbase_ dbfilter
 }
 
 proc ::crosstab::Refresh {} {

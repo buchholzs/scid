@@ -675,6 +675,10 @@ proc ::windows::switcher::Create {{w}} {
       bind $f$win <ButtonPress-$::MB3> "::windows::switcher::popupmenu $w $f %X %Y $i"
     }
   }
+  bind $w <<NotifyFilter>> [list apply {{w} {
+    lassign %d dbase filter
+    if {$filter eq "dbfilter"} { ::windows::switcher::Update_ $w }
+  }} $w]
   bind $w <Configure> "+if {\"%W\" eq \"$w\"} {
     ::windows::switcher::Update_ %W
   }"
@@ -738,9 +742,7 @@ proc ::windows::switcher::Draw {{w} {numColumns} {iconWidth} {iconHeight} } {
   $w.c configure -scrollregion [list 0 0 $right $bottom] -borderwidth 4 -relief flat
 }
 
-proc ::windows::switcher::Refresh {{base ""} {filter -1}} {
-  if {$filter ni [list -1 dbfilter]} { return }
-
+proc ::windows::switcher::Refresh {{base ""}} {
   foreach w $::windows::switcher::wins {
     ::windows::switcher::Update_ $w
   }

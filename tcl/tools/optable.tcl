@@ -270,7 +270,7 @@ proc ::optable::makeReportWin {args} {
   $w.text configure -state disabled
   unbusyCursor .
 
-  ::notify::DatabaseModified $::curr_db dbfilter
+  ::notify::filter $::curr_db dbfilter
 }
 ################################################################################
 # merges the N best games up to P plies to current game

@@ -390,24 +390,36 @@ namespace eval ::notify {
   }
 
   # To be called after modifying data in a database
-  # The filter name is provided if it was the only thing modified (searches)
-  proc DatabaseModified {{dbase} {filter -1}} {
+  proc DatabaseModified {dbase} {
     menuUpdateBases
-    if {$filter == -1} {
-      ::updateTreeFilter $dbase
-    }
+    ::updateTreeFilter $dbase
     ::tree::dorefresh $dbase
-    ::windows::gamelist::DatabaseModified $dbase $filter
-    ::windows::switcher::Refresh $dbase $filter
+    ::windows::gamelist::DatabaseModified $dbase
+    ::windows::switcher::Refresh $dbase
     ::windows::stats::refresh_wnd
     ::maint::Refresh
-    if {$filter == -1} {
-      updateStatusBar
-    }
-    ::search::DatabaseModified $dbase $filter
+    updateStatusBar
+    ::search::DatabaseModified $dbase
     ::tools::graphs::filter::Refresh
     ::tools::graphs::absfilter::Refresh
     if {[winfo exists .ecograph]} { ::windows::eco::update }
+  }
+
+  # To be called when the filter of a database is changed (searches)
+  proc filter {dbase filter} {
+    # TODO: Avoid direct access to ::search::dbase_
+    foreach wnd [concat [::win::getWindows] [array names ::search::dbase_]] {
+      event generate $wnd <<NotifyFilter>> -when tail -data [list $dbase $filter]
+    }
+    # TODO: Update the old code to handle <<NotifyFilter>> events
+    ::tree::dorefresh $dbase $filter
+    if {$filter eq "dbfilter"} {
+      ::windows::stats::refresh_wnd
+      ::maint::Refresh
+      ::tools::graphs::filter::Refresh
+      ::tools::graphs::absfilter::Refresh
+      if {[winfo exists .ecograph]} { ::windows::eco::update }
+    }
   }
 
   # To be called when the engine evaluation for the current position changes.

@@ -67,6 +67,12 @@ proc ::search::Open {ref_base ref_filter title create_subwnd} {
 
 	bind $w <Return> "$w.buttons.search invoke"
 	bind $w.buttons.search <Destroy> "unset ::search::dbase_($w)"
+	bind $w <<NotifyFilter>> [list apply {{w} {
+		lassign %d dbase filter
+		if {$dbase eq $::search::dbase_($w) && $filter eq $::search::filter_($w)} {
+			::search::refresh_ $w
+		}
+	}} $w]
 
 	::search::refresh_ $w
 }
@@ -77,12 +83,10 @@ proc ::search::CloseAll {} {
 	}
 }
 
-proc ::search::DatabaseModified {{dbase} {filter -1}} {
+proc ::search::DatabaseModified {dbase} {
 	foreach {w w_base} [array get ::search::dbase_] {
 		if {$dbase == $w_base} {
-			if {$filter == -1 || $filter eq $::search::filter_($w)} {
-				::search::refresh_ $w
-			}
+			::search::refresh_ $w
 		}
 	}
 }
@@ -167,7 +171,7 @@ proc ::search::start_ {new_filter w options_cmd} {
 	}
 
 	set ::search::filter_($w) $dest_filter
-	::notify::DatabaseModified $dbase $dest_filter
+	::notify::filter $dbase $dest_filter
 
 	if {$new_filter} {
 		::windows::gamelist::Open $dbase $dest_filter

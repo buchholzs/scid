@@ -132,7 +132,7 @@ proc ::windows::gamelist::FilterReset {{w} {base}} {
 	if {$w != "" && $base == $::gamelistBase($w)}  { set f $::gamelistFilter($w) }
 	sc_filter reset $base $f full
 	lassign [sc_filter components $base $f] f
-	::notify::DatabaseModified $base $f
+	::notify::filter $base $f
 }
 
 proc ::windows::gamelist::FilterNegate {{w} {base}} {
@@ -140,7 +140,7 @@ proc ::windows::gamelist::FilterNegate {{w} {base}} {
 	if {$w != "" && $base == $::gamelistBase($w)}  { set f $::gamelistFilter($w) }
 	sc_filter negate $base $f
 	lassign [sc_filter components $base $f] f
-	::notify::DatabaseModified $base $f
+	::notify::filter $base $f
 }
 
 proc ::windows::gamelist::FilterExport {{w}} {
@@ -247,7 +247,7 @@ proc ::windows::gamelist::Awesome {{w} {txt}} {
 			closeProgressWindow
 		}
 	}
-	::notify::DatabaseModified $::gamelistBase($w) $filter
+	::notify::filter $::gamelistBase($w) $filter
 }
 
 proc ::windows::gamelist::AweInit {} {
@@ -450,6 +450,14 @@ proc ::windows::gamelist::createWin_ { {w} {base} {filter} } {
 			::windows::gamelist::filterRelease_ $::gamelistBase(%W) $::gamelistFilter(%W)
 		}
 	}
+	bind $w <<NotifyFilter>> [list apply {{w} {
+		lassign %d dbase filter
+		if {$::gamelistBase($w) eq $dbase &&
+			$filter in [sc_filter components $::gamelistBase($w) $::gamelistFilter($w)]} {
+				::windows::gamelist::update_ $w 1
+				::windows::gamelist::updateStats_ $w
+		}
+	}} $w]
 	bind $w <Control-l> "::windows::gamelist::Open \$::gamelistBase($w)"
 	lappend ::windows::gamelist::wins $w
 	::windows::gamelist::Refresh 1 $w
@@ -621,7 +629,7 @@ proc ::windows::gamelist::searchpos_ {{w}} {
 		$w.buttons.boardFilter state !pressed
 		set ::gamelistFilter($w) [sc_filter compose $::gamelistBase($w) $::gamelistFilter($w) ""]
 		::cancelUpdateTreeFilter "$w.progress 100 100"
-		::notify::DatabaseModified $::gamelistBase($w) $::gamelistFilter($w)
+		::notify::filter $::gamelistBase($w) $::gamelistFilter($w)
 	}
 }
 
@@ -635,7 +643,7 @@ proc ::windows::gamelist::filterRelease_ {{base} {filter}} {
 		}
 	}
 	sc_filter release $base $filter
-	::notify::DatabaseModified $base $filter
+	::notify::filter $base $filter
 }
 
 proc ::windows::gamelist::updateStats_ { {w} } {
@@ -1131,7 +1139,7 @@ proc glist.removeFromFilter_ {{w} {idx} {dir ""}} {
     sc_filter remove $::glistBase($w) $::glistFilter($w) $idx $dir $::glistSortStr($w)
   }
   lassign [sc_filter components $::glistBase($w) $::glistFilter($w)] f
-  ::notify::DatabaseModified $::glistBase($w) $f
+  ::notify::filter $::glistBase($w) $f
   if {$dir == "+"} { glist.ybar_ $w moveto 1.0 }
 }
 

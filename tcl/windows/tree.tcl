@@ -367,14 +367,15 @@ proc ::tree::refresh { { baseNumber "" }} {
 }
 
 ################################################################################
-proc ::tree::dorefresh { baseNumber } {
+proc ::tree::dorefresh { baseNumber {filter "tree"}} {
   global tree treeWin
   set w .treeWin$baseNumber
 
   if {![winfo exists $w]} { return }
   if { ! $tree(autorefresh$baseNumber) } { return }
+  if {$filter ne "tree"
+    && ($tree(allgames$baseNumber) || $filter ne "dbfilter") } { return }
 
-  set filter "tree"
   if { $tree(allgames$baseNumber) == 0 } {
     set filter [sc_filter compose $baseNumber "dbfilter" "tree"]
   }
