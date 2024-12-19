@@ -29,7 +29,6 @@ proc createToplevel { {w} {closeto ""} } {
   set f ".fdock[string range $w 1 end]"
   frame $f  -container 1
   toplevel $w -use [ winfo id $f ]
-  keyboardShortcuts $w
 
   # Set default width and height values, if they do not exists
   if {![info exists ::winGeometry($f)]} {

@@ -19,7 +19,6 @@ proc ::windows::stats::Open {} {
     return
   }
   win::createDialog $w
-  keyboardShortcuts $w
   wm title $w "Scid: $::tr(FilterStatistic)"
   setWinLocation $w
   bind $w <Configure> "recordWinSize $w"

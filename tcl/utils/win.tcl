@@ -32,8 +32,6 @@ proc ::win::createWindow { {w} {title} {default_geometry ""} } {
 	frame $w
 	::win::manageWindow $w $title
 
-	keyboardShortcuts $w
-
 	return 1
 }
 

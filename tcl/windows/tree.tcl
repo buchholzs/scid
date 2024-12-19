@@ -831,7 +831,6 @@ proc ::tree::graph { baseNumber {bpress 0}} {
     bind $w.c <Button-1> "::tree::graph $baseNumber"
     ::setTitle $w "Scid: Tree Graph $baseNumber: [file tail [sc_base filename $baseNumber]]"
     # wm minsize $w 300 200
-    keyboardShortcuts $w
     ::tree::configGraphMenus "" $baseNumber
   } elseif {$bpress == 1} {
     focus $w
