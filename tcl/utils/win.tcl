@@ -41,6 +41,8 @@ proc ::win::closeWindow {w} {
 	lassign [::win::isDocked $w] docked_nb w
 	if {$docked_nb ne ""} {
 		::docking::remove_tab $w $docked_nb
+		lappend ::docking::prev_nb [list $docked_nb $w]
+		set ::docking::prev_nb [lsort -unique -index 1 $::docking::prev_nb]
 	} else {
 		::win::saveWinGeometry $w
 	}
@@ -274,6 +276,7 @@ proc ::win::makeVisible { wnd } {
 namespace eval docking {
   # associates notebook to paned window
   variable tbs
+  variable prev_nb {}
 }
 
 ################################################################################
@@ -362,6 +365,9 @@ proc ::docking::_cleanup_tabs {srctab} {
 # 1       2       4        0        0       0       0,1      5100
 # Improving the matrix and recalculating can improve the select algorithm
 proc ::docking::choose_notebook { path } {
+    lassign [lsearch -index 1 -inline $::docking::prev_nb $path] prev_dest
+    if {$prev_dest ne ""} { return $prev_dest }
+
     set dsttab {}
     set best_fitting ""
     foreach tb [array names ::docking::tbs] {
@@ -384,13 +390,13 @@ proc ::docking::choose_notebook { path } {
       # number of similar windows
       set name_striptrailnum [regsub {\d*$} $path ""]
       set feat(4) [llength [lsearch -all -regexp $tabs ".*$name_striptrailnum.*"]]
-      set coeff(4) "29942.45"
+      set coeff(4) "40000.0"
       # number of similar windows^2
       set feat(5) [expr { $feat(4) * $feat(4) }]
-      set coeff(5) "-3053.05"
+      set coeff(5) "3000.0"
       # number of similar windows^3
       set feat(6) [expr { $feat(4) * $feat(4) * $feat(4) }]
-      set coeff(6) "-323.52"
+      set coeff(6) "300.0"
       # ratio between the area of the notebook and the screen
       set feat(7) [expr { double([winfo width $tb] * [winfo height $tb]) }]
       set feat(7) [expr { $feat(7) / ([winfo screenwidth $tb] * [winfo screenheight $tb]) }]
