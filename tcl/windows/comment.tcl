@@ -45,6 +45,8 @@ namespace eval ::windows::commenteditor {
 
 	proc storeComment_ {} {
 		variable w_
+		if {![$w_.cf.txtframe.text edit modified]} { return }
+
 		# The "end-1c" below is because Tk adds a newline to text contents:
 		set oldComment [sc_pos getComment]
 		set newComment [$w_.cf.txtframe.text get 1.0 end-1c]
@@ -58,6 +60,7 @@ namespace eval ::windows::commenteditor {
 			set ::windows::commenteditor::needNotify_ 1
 		}
 		notify_ 1500
+		$w_.cf.txtframe.text edit modified false
 	}
 
 	proc storeNAGs_ {} {
@@ -159,10 +162,7 @@ proc ::windows::commenteditor::createWin { {focus_if_exists 1} } {
 	bind $w_.nf.text <KeyRelease> "::windows::commenteditor::storeNAGs_"
 	bind $w_.cf.txtframe.text <KeyPress>   "::windows::commenteditor::notifyCancel_"
 	bind $w_.cf.txtframe.text <KeyRelease> "::windows::commenteditor::notify_ 1000"
-	bind $w_.cf.txtframe.text <<Modified>> "
-		::windows::commenteditor::storeComment_;
-		$w_.cf.txtframe.text edit modified false
-	"
+	bind $w_.cf.txtframe.text <<Modified>> "::windows::commenteditor::storeComment_"
 
 	set ::windows::commenteditor::isOpen 1
 	$w_.cf.txtframe.text edit modified false
@@ -176,6 +176,7 @@ proc ::windows::commenteditor::Refresh {} {
 	variable w_
 	if {![winfo exists $w_]} { return }
 
+	::windows::commenteditor::notifyCancel_
 	variable needNotify_ 0
 	variable undoNAGs_ 1
 	variable undoComment_ 1
@@ -185,6 +186,7 @@ proc ::windows::commenteditor::Refresh {} {
 		$w_.cf.txtframe.text delete 1.0 end
 		$w_.cf.txtframe.text insert end $comment
 	}
+	$w_.cf.txtframe.text edit modified false
 
 	set nag [sc_pos getNags]
 	$w_.nf.text configure -state normal
