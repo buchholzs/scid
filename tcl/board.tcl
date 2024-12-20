@@ -590,13 +590,13 @@ proc ::board::setInfoAlert {{w} {header} {msg} {msgcolor} {cmd}} {
   $w.bar.info.t insert end "$msg" {color click}
   $w.bar.info.t configure -state disabled
   $w.bar.info.t tag configure color -foreground $msgcolor
-  $w.bar.info.t tag bind click <ButtonRelease-1> "
+  $w.bar.info.t tag bind click <ButtonRelease-1> [list apply {{cmd} {
     if {[winfo exists $cmd]} {
-      after idle \"tk_popup $cmd %X \[expr -10 + %Y - \[winfo reqheight $cmd\] \]\"
+      after idle tk_popup $cmd %X [expr {-10 + %Y - [winfo reqheight $cmd]}]
     } else {
-      after idle \"$cmd\"
+      after idle $cmd
     }
-  "
+  }} $cmd]
 }
 
 set ::board::repeatCmd 400
