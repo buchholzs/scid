@@ -1892,7 +1892,7 @@ int
 sc_game (ClientData cd, Tcl_Interp * ti, int argc, const char ** argv)
 {
     static const char * options [] = {
-        "altered",    "setaltered", "crosstable", "eco",
+        "altered",    "crosstable", "eco",
         "find",       "firstMoves", "import",
         "info",        "load",      "merge",      "moves",
         "new",        "novelty",    "number",     "pgn",
@@ -1902,7 +1902,7 @@ sc_game (ClientData cd, Tcl_Interp * ti, int argc, const char ** argv)
         "undo",       "undoAll",    "undoPoint",  "redo",       NULL
     };
     enum {
-        GAME_ALTERED,    GAME_SET_ALTERED, GAME_CROSSTABLE, GAME_ECO,
+        GAME_ALTERED,    GAME_CROSSTABLE, GAME_ECO,
         GAME_FIND,       GAME_FIRSTMOVES, GAME_IMPORT,
         GAME_INFO,       GAME_LOAD,       GAME_MERGE,      GAME_MOVES,
         GAME_NEW,        GAME_NOVELTY,    GAME_NUMBER,     GAME_PGN,
@@ -1920,12 +1920,6 @@ sc_game (ClientData cd, Tcl_Interp * ti, int argc, const char ** argv)
     case GAME_ALTERED:
         return UI_Result(ti, OK, db->gameAltered);
 
-    case GAME_SET_ALTERED:
-        if (argc != 3 ) {
-          return errorResult (ti, "Usage: sc_game setaltered [0|1]");
-        }
-        db->gameAltered = strGetUnsigned (argv[2]);
-        break;
     case GAME_CROSSTABLE:
         return sc_game_crosstable (cd, ti, argc, argv);
 
