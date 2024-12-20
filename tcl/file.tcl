@@ -322,7 +322,7 @@ proc ::file::autoLoadBases.add { {baseIdx} } {
   lappend ::autoLoadBases $base
 }
 proc ::file::autoLoadBases.remove { {baseIdx} } {
-  if {![info exists ::autoLoadBases]} { return }
+  if {![info exists ::autoLoadBases]} { return -1 }
   if {[ catch {set base [sc_base filename $baseIdx]} ]} { return }
   set idx [lsearch -exact $::autoLoadBases $base]
   if {$idx != -1} {
