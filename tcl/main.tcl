@@ -240,7 +240,7 @@ proc updateStatusBar {} {
       append statusBar ": $number.$move"
       set statusBar [list $statusBar {}]
       if {$::gamePlayers(movetime) ne ""} {
-        lappend statusBar "   $::gamePlayers(movetime)" header
+        lappend statusBar "    \u23F1 $::gamePlayers(movetime)" header
       }
       ::board::setInfo .main.board $statusBar
     } else {
