@@ -1301,7 +1301,8 @@ proc glist.sortClickEvent_ {w x y event_state layout} {
   }
   set clear 1
   lassign $::glist_Sort($layout) i1 s1 i2
-  set control_click [expr {$event_state & 0x0c}]
+  if {$::macOS} { set ctrl_mask 0x0c } { set ctrl_mask 0x04 }
+  set control_click [expr {$event_state & $ctrl_mask}]
   if {$control_click || ($i1 eq $col_idx && $i2 eq "")} {
     set clear 0
   }
