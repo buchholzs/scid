@@ -1,16 +1,31 @@
              Changelog
             ===========
 
-[tbd ??? ????]
-scid-5.?.?
+[December 2024]
+scid-5.1.0
 ==========
 - New features:
-	* Options for highlight last move: arrow and/or square, show NAGs on the board
-	* Update translation: catalan
-- Fixes :
+	* Filter games using the value of extra tag-pairs.
+	* Options for highlighting the last move: arrow and/or square, show NAGs on the board.
+- Improvements:
+	* Refined Gamelist Window:
+	  - New sorting behavior when clicking a column header, with Control+click for multi-column sorting.
+	  - Added keyboard shortcuts for navigation (Ctrl+Home, Ctrl+End).
+	  - Added a "Layout" submenu in the heading contextual menu.
+	  - Added a button to export filtered games in the current sort order.
+	  - Moved the find bar to the top.
+	  - Introduced light/dark mode icons.
+	* Improved typing move entry by fixing ambiguous inputs (e.g., `bxc4` vs `Bxc4`) and accepting moves in the local language.
+	* Added a build script `build_app.sh` to simplify dependency management.
+	* Cleaned up macOS `Info.plist`.
+	* Updated Catalan translation.
+- Fixes:
 	* Fix: Bug #205: the evaluation bar shows the wrong color for +M12 or -M5 notations when the board is flipped. Thanks to Elo Tron and Uwe.
 	* Fix: Bug #209: premove only executed after receiving a move from fics and show correct direction of premove arrow.
-	* Fix: Review game: redesign UI and move evaluation
+	* Fix: Review game: redesign UI and move evaluation.
+	* Improved handling of focus and keyboard events.
+	* Resolved Unicode filename issues on Windows.
+	* Improved handling of SCID5 databases and corrupt NameBase IDs.
 
 [March 2023]
 scid-5.0.2
