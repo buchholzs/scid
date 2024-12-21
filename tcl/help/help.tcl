@@ -3382,17 +3382,13 @@ set helpText(PInfo) {<h1>The Player Info window</h1>
   <ul>
   <li><button fidelnk> Go to the players FIDE profile page</li>
   <li><button iccflnk> Go to the players ICCF profile page</li>
-  <li><button dsblnk> Go to the players profile at the Deutscher
-  Schachbund.</li>
   <li><button bcflnk> Go to the players profile at the British Chess
   Federation.</li>
-  <li><button smlnk> Go to te players profile at SchemingMind.</li>
   <li><button wikiplnk> Call up the players Wikipedia profile page.
   Scid will try to use the language set for Scid itself. If no page is
   available, it will resort to German (for pure technical reasons).</li>
   <li><button dnblnk> Call up the German national library for books by
   or about the player.</li>
-  <li><button seealsolnk> An alternative way to access Wikipedia.</li>
   <li><button viaflnk> Call up player information at the Virtual
   Authority File (VIAF). This could be used to call up books of/by this
   player in the contributing national libraries.</li>
