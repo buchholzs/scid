@@ -58,6 +58,9 @@ struct playerDataT
     char *      name;
     eloT        elo;
     uint        score;   // Score, stored as 2 pts per win, 1 pt per draw.
+    uint        n_won;
+    uint        n_draw;
+    uint        n_loss;
     uint        gameCount;
     uint        tiebreak; // Sonneborn-Berger tiebreak for all-play-all,
                           // or Bucholz tiebreak for Swiss.

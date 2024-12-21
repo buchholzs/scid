@@ -203,6 +203,9 @@ Crosstable::AddPlayer (idNumberT id, const char * name, eloT elo, const SpellChe
     pdata->name = strDuplicate (name);
     pdata->elo = elo;
     pdata->score = 0;
+    pdata->n_won = 0;
+    pdata->n_draw = 0;
+    pdata->n_loss = 0;
     pdata->gameCount = 0;
     pdata->tiebreak = 0;
     pdata->oppEloCount = 0;
@@ -324,18 +327,24 @@ Crosstable::AddResult (uint gameNumber, idNumberT white, idNumberT black,
 
     switch (result) {
     case RESULT_White:
+        pwhite->n_won++;
+        pblack->n_loss++;
         pwhite->score += (ThreeWin ? 6 : 2);
         if (pblack->elo > 0) {
             pwhite->oppEloScore += 2;
         }
         break;
     case RESULT_Black:
+        pwhite->n_loss++;
+        pblack->n_won++;
         pblack->score += (ThreeWin ? 6 : 2);
         if (pwhite->elo > 0) {
             pblack->oppEloScore += 2;
         }
         break;
     case RESULT_Draw:
+        pwhite->n_draw++;
+        pblack->n_draw++;
         pwhite->score += (ThreeWin ? 2 : 1);
         pblack->score += (ThreeWin ? 2 : 1);
         if (pblack->elo > 0) {
@@ -880,7 +889,6 @@ Crosstable::PrintAllPlayAll (DString * dstr, uint playerLimit)
             dstr->Append (StartRightCol, stemp, EndRightCol);
         }
 
-        uint r_won = 0, r_loss = 0, r_draw = 0;
         for (uint oppCount = 0; oppCount < playerLimit; oppCount++) {
             if (playerLimit == 2  &&  oppCount == player) { continue; }
             uint opp = SortedIndex[oppCount];
@@ -901,17 +909,6 @@ Crosstable::PrintAllPlayAll (DString * dstr, uint playerLimit)
                     } else {
                         dstr->AddChar (RESULT_CHAR[clash->result]);
                     }
-                    switch (clash->result) {
-                    case 1:
-                        r_won++;
-                        break;
-                    case 2:
-                        r_loss++;
-                        break;
-                    case 3:
-                        r_draw++;
-                        break;
-                    }
                     clash = clash->next;
                 } else {
                     dstr->AddChar (index == opp ? 'X' : '.');
@@ -924,10 +921,10 @@ Crosstable::PrintAllPlayAll (DString * dstr, uint playerLimit)
         PrintScorePercentage (dstr, pdata);
 
         if (PrintTallies) {
-	  dstr->Append (StartCol);
-	  sprintf (stemp, "  (+%u -%u =%u)", r_won, r_loss, r_draw);
-	  dstr->Append (stemp);
-	  dstr->Append (EndCol);
+            dstr->Append(StartCol);
+            sprintf(stemp, "  (+%u -%u =%u)", pdata->n_won, pdata->n_loss, pdata->n_draw);
+            dstr->Append(stemp);
+            dstr->Append(EndCol);
         }
 
         dstr->Append (EndRow, NewLine);
@@ -1077,7 +1074,6 @@ Crosstable::PrintSwiss (DString * dstr, uint playerLimit)
             dstr->Append (StartRightCol, stemp, EndRightCol);
         }
 
-        uint r_won = 0, r_loss = 0, r_draw = 0;
         for (uint round = 1; round <= MaxRound; round++) {
             clashT * clash = pdata->roundClash[round];
             dstr->AddChar (' ');
@@ -1111,14 +1107,6 @@ Crosstable::PrintSwiss (DString * dstr, uint playerLimit)
                     else
                       dstr->Append ("</g></blue>");
                 }
-                switch (clash->result) {
-		  case 1:
-		      r_won++; break;
-		  case 2:
-		      r_loss++; break;
-		  case 3:
-		      r_draw++; break;
-                }
             }
             dstr->Append (EndCol);
         }
@@ -1126,10 +1114,10 @@ Crosstable::PrintSwiss (DString * dstr, uint playerLimit)
         PrintScorePercentage (dstr, pdata);
 
         if (PrintTallies) {
-	  dstr->Append (StartCol);
-	  sprintf (stemp, "  (+%u -%u =%u)", r_won, r_loss, r_draw);
-	  dstr->Append (stemp);
-	  dstr->Append (EndCol);
+            dstr->Append (StartCol);
+            sprintf (stemp, "  (+%u -%u =%u)", pdata->n_won, pdata->n_loss, pdata->n_draw);
+            dstr->Append (stemp);
+            dstr->Append (EndCol);
         }
 
         dstr->Append (EndRow, NewLine);
