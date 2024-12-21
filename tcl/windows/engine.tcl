@@ -256,9 +256,6 @@ proc ::enginewin::createButtonsBar {id btn display} {
     ttk::button $btn.addbestmove -image tb_eng_addbestmove -style Toolbutton \
         -command "::enginewin::exportMoves $display.pv_lines 1.0"
     ::utils::tooltip::Set $btn.addbestmove [tr AddMove]
-    ttk::button $btn.addbestline -image tb_eng_addbestline -style Toolbutton \
-        -command "::enginewin::exportMoves $display.pv_lines 1.end"
-    ::utils::tooltip::Set $btn.addbestline [tr AddVariation]
     ttk::button $btn.addlines -image tb_eng_addlines -style Toolbutton \
         -command "::enginewin::exportLines $display.pv_lines"
     ::utils::tooltip::Set $btn.addlines [tr AddAllVariations]
@@ -312,7 +309,7 @@ proc ::enginewin::createButtonsBar {id btn display} {
     ttk::button $btn.config -image tb_eng_config -style Toolbutton \
         -command "::enginewin::changeState $id toggleConfig"
     $btn.config state pressed
-    grid $btn.startStop $btn.lock $btn.addbestmove $btn.addbestline \
+    grid $btn.startStop $btn.lock $btn.addbestmove \
          $btn.addlines $btn.multipv $btn.threads $btn.hash $btn.limits x $btn.config -sticky ew
     grid columnconfigure $btn 9 -weight 1
 }
@@ -369,7 +366,6 @@ proc ::enginewin::changeState {id newState} {
     # This allow the user to later add the lines. And if the board position
     # will be different, only the valid moves will be added to the game.
     lappend btnDisabledStates [list btn.addbestmove [list closed disconnected]]
-    lappend btnDisabledStates [list btn.addbestline [list closed disconnected]]
     lappend btnDisabledStates [list btn.addlines [list closed disconnected]]
     lappend btnDisabledStates [list btn.startStop [list closed disconnected] [list locked run]]
     lappend btnDisabledStates [list btn.lock [list closed disconnected idle] locked]
